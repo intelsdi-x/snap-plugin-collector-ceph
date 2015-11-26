@@ -31,9 +31,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/intelsdi-x/pulse/control/plugin"
-	"github.com/intelsdi-x/pulse/control/plugin/cpolicy"
-	"github.com/intelsdi-x/pulse/core/ctypes"
+	"github.com/intelsdi-x/snap/control/plugin"
+	"github.com/intelsdi-x/snap/control/plugin/cpolicy"
+	"github.com/intelsdi-x/snap/core/ctypes"
 )
 
 const (
@@ -358,7 +358,7 @@ func (ceph *Ceph) init(config map[string]ctypes.ConfigValue) error {
 	return nil
 }
 
-// New() returns Pulse-Plugin-Collector-Ceph instance
+// New() returns Snap-Plugin-Collector-Ceph instance
 func New() *Ceph {
 	ceph := &Ceph{initialized: false}
 	cmd = &RealCmd{}

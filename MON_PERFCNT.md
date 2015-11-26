@@ -17,7 +17,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 -->
 
-## Pulse Ceph Perf Counters Collector Plugin
+## Snap Ceph Perf Counters Collector Plugin
 
 
 # Ceph MON Perf Counters
