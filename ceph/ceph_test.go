@@ -26,9 +26,9 @@ import (
 	//	"strings"
 	"testing"
 
-	"github.com/intelsdi-x/pulse/control/plugin"
-	"github.com/intelsdi-x/pulse/core/cdata"
-	"github.com/intelsdi-x/pulse/core/ctypes"
+	"github.com/intelsdi-x/snap/control/plugin"
+	"github.com/intelsdi-x/snap/core/cdata"
+	"github.com/intelsdi-x/snap/core/ctypes"
 	. "github.com/smartystreets/goconvey/convey"
 )
 
@@ -440,7 +440,7 @@ func Test_parsePerfDumpOut(t *testing.T) {
 func Test_getCephBinaryPath(t *testing.T) {
 	path := "/path/to/ceph/bin"
 
-	Convey("path Ceph executable in Pulse Global Config", t, func() {
+	Convey("path Ceph executable in Snap Global Config", t, func() {
 		cmd = &TestCmd{}
 		cfg := plugin.NewPluginConfigType()
 		cfg.AddItem("path", ctypes.ConfigValueStr{Value: path})
@@ -480,7 +480,7 @@ func Test_getSocketConf(t *testing.T) {
 		So(result.ext, ShouldEqual, socketExtDefault)
 	})
 
-	Convey("customize Ceph socket conf in Pulse Global Conf", t, func() {
+	Convey("customize Ceph socket conf in Snap Global Conf", t, func() {
 		path := "path/to/ceph/socket"
 		prefix := "test-"
 		extension := "asdf"
