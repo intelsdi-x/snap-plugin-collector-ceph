@@ -1,24 +1,6 @@
-<!--
-http://www.apache.org/licenses/LICENSE-2.0.txt
+# snap collector plugin - Ceph
 
-Copyright 2015 Intel Corporation
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-	
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
--->
-
-# Snap Collector Plugin - CEPH
-
-Collect Ceph performance counters from the Ceph Storage System for:
+This  plugin collects Ceph performance counters from the Ceph Storage System for:
 * MON (Ceph Monitor Daemon)
 * OSD (Ceph Object Storage Daemon)
 * MDS (Ceph Metadata Server Daemon)
@@ -26,14 +8,12 @@ Collect Ceph performance counters from the Ceph Storage System for:
 The perf counters data are accessed via the Ceph admin socket.
 The intention is that data will be collected, aggregated and fed into another tool for graphing and analysis.
 
-Project link: https://github.com/intelsdi-x/snap-plugin-collector-ceph
-
-Documentation for ceph perf counters:	http://ceph.com/docs/master/dev/perf_counters/
+This plugin is used in the [snap framework] (http://github.com/intelsdi-x/snap).
 
 1. [Getting Started](#getting-started)
   * [System Requirements](#system-requirements)
   * [Installation](#installation)
-  * [Configuration and Usage](configuration-and-usage)
+  * [Configuration and Usage](#configuration-and-usage)
 2. [Documentation](#documentation)
   * [Collected Metrics](#collected-metrics)
   * [Examples](#examples)
@@ -45,28 +25,40 @@ Documentation for ceph perf counters:	http://ceph.com/docs/master/dev/perf_count
 
 ## Getting Started
 
-In order to use this plugin you need ceph cluster running. 
-
-It can be tested also on a fake local cluster on Your machine. Read more about [how to create virtual Ceph cluster](VCLUSTER.md).  
+In order to use this plugin you need Ceph cluster running.  
 
 ### System Requirements
 
-Include:
-
-- Ceph Storage Cluster [http://ceph.com/]
-- Ceph Administration Tool
-- Root privileges might be needed
+* [Ceph Storage Cluster] (http://ceph.com/)
+* [Ceph Administration Tool] (http://docs.ceph.com/docs/v9.0.2/man/8/ceph/)
+* Root privileges might be needed
 
 ### Installation
 
- - Plugin compilation
+#### To deploy the Ceph cluster
+
+The quickest way to get a Ceph cluster up and running is to follow the Getting Started guides available at http://ceph.com/resources/downloads/. 		It can be tested also on a fake local cluster on Your machine. Read more about [how to deploy fake local Ceph cluster](VCLUSTER.md).
+
+#### To build the plugin binary:
+Fork https://github.com/intelsdi-x/snap-plugin-collector-ceph  
+Clone repo into `$GOPATH/src/github.com/intelsdi-x/`:
+
 ```
-make
+$ git clone https://github.com/<yourGithubID>/snap-plugin-collector-ceph.git
 ```
+
+Build the plugin by running make within the cloned repo:
+```
+$ make
+```
+This builds the plugin in `/build/rootfs/`
 
 ### Configuration and Usage
+* Set up the [snap framework](https://github.com/intelsdi-x/snap/blob/master/README.md#getting-started)
+* Ensure `$SNAP_PATH` is exported  
+`export SNAP_PATH=$GOPATH/src/github.com/intelsdi-x/snap/build`
 
-Set proper Snap Global Config field(s) to customize Ceph's path:
+* Set proper snap Global Config field(s) to customize Ceph's path:
 
 Namespace | Data Type | Description
 ----------|-----------|-----------------------
@@ -80,7 +72,11 @@ Sample Global Config is available in folder /examples/configs.
  
 ## Documentation
 
-Documentation for ceph perf counters is available at http://ceph.com/docs/master/dev/perf_counters/
+To learn more about this plugin and ceph perf counters, visit:
+
+* [ceph perf counters doc] (http://ceph.com/docs/master/dev/perf_counters)
+* [snap ceph unit test](https://github.com/intelsdi-x/snap-plugin-collector-ceph/blob/master/ceph/ceph_test.go)
+* [snap ceph examples](#examples)
 
 Resetting the perf counters before measurement is recommended. This feature was added in the Ceph 0.90 (Hammer release):
 ```
@@ -88,7 +84,7 @@ $ sudo ceph daemon <daemon-name> perf reset all | <perf_cnt_name>
 ```
 
 ### Collected Metrics
-This plugin has the ability to gather the following Ceph perf counters from :
+This plugin has the ability to gather the following Ceph perf counters from:
 
 * MON [see more...](MON_PERFCNT.md)
 * MDS [see more...](MDS_PERFCNT.md)
@@ -97,16 +93,15 @@ This plugin has the ability to gather the following Ceph perf counters from :
 By default metrics are gathered once per second.
 
 
-
 ### Examples
 
-Example of running snap ceph perf counters collector and writing data to a file.
+Example of running snap ceph perf counters collector and writing data to file.
 
 Run the snap daemon on each node with defaults settings:
 ```
 $ snapd -l 1 -t 0
 ```
-Or set custom settings in the Snap Global Config in Ceph section (see examples/configs/pulse-config-sample.json):
+Or set custom settings in snap Global Config in Ceph section (see examples/configs/pulse-config-sample.json):
 ```
 $ snapd -l 1 -t 0 --config $SNAP_CEPH_PLUGIN_DIR/examples/configs/pulse-config-sample.json
 ```
@@ -265,31 +260,40 @@ NAMESPACE                                                                       
 ```
 (Keys `ctrl+c` terminate task watcher)
 
-These data are published to file (in this example publishing to /tmp/published_ceph).
+These data are published to file and stored there (in this example in /tmp/published_ceph).
 
+Stop task:
+```
+$ $SNAP_PATH/bin/snapctl task stop 029cc837-ccd7-41b0-8103-949c0ba0070f
+Task stopped:
+ID: 029cc837-ccd7-41b0-8103-949c0ba0070f
+```
 
-**Notice:**
-**Using the snap tribe is recommended.** Administrators can control all snap nodes in a tribe agreement by messaging just one of them what makes cluster configuration management simple. Read more about the snap tribe at https://github.com/intelsdi-x/snap.
+**Notice:**																																			**Using the snap tribe is recommended.** Administrators can control all snap nodes in a tribe agreement by messaging just one of them what makes cluster configuration management simple. Read more about the snap tribe at https://github.com/intelsdi-x/snap.
 
 ### Roadmap
+This plugin is in active development. As we launch this plugin, we have a few items in mind for the next release:
+- [ ] Concurrency execution of collecting metrics from Ceph sockets
+
 As we launch this plugin, we do not have any outstanding requirements for the next release. If you have a feature request, please add it as an [issue](https://github.com/intelsdi-x/snap-plugin-collector-ceph/issues).
 
-
 ## Community Support
-This repository is one of **many** plugins in the **snap Framework**: a powerful telemetry agent framework.
-The full project is at http://github.com:intelsdi-x/snap.
+This repository is one of **many** plugins in the **snap**, a powerful telemetry agent framework. See the full project at 
+http://github.com/intelsdi-x/snap. To reach out to other users, head to the [main framework](https://github.com/intelsdi-x/snap#community-support).
+
 
 ## Contributing
 We love contributions! :heart_eyes:
 
-There's more than one way to give back, from examples to blogs to code updates. See our recommended process in [CONTRIBUTING.md](CONTRIBUTING.md).
+There is more than one way to give back, from examples to blogs to code updates. See our recommended process in [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## License
-Snap, along with this plugin, is an Open Source software released under the Apache 2.0 [License](LICENSE).
+
+[snap](http://github.com/intelsdi-x/snap), along with this plugin, is an Open Source software released under the Apache 2.0 [License](LICENSE).
+
 
 ## Acknowledgements
-List authors, co-authors and anyone you'd like to mention
 
 * Author: [Izabella Raulin](https://github.com/IzabellaRaulin)
 
-**Thank you!** Your contribution is incredibly important to us.
+And **thank you!** Your contribution, through code and participation, is incredibly important to us.
