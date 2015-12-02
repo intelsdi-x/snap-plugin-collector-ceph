@@ -16,7 +16,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 -->
 
-## How to create virtual Ceph cluster
+## How to deploy fake local Ceph cluster
 
 If You would like to check snap with Ceph collector plugin in local machine, clone Ceph's source from https://github.com/ceph/ceph and following the instruction to build it. 
 
@@ -41,7 +41,7 @@ $ ./ceph -s
                   24 active+clean
   client io 4084 B/s wr, 11 op/s
 ```
-In the $CEPH_DIR/src/out directory should occure ceph-daemon asok. Set path to them in the Snap Global Config, also customize the socket prefix and extension might be required.
+In the $CEPH_DIR/src/out directory should occure ceph-daemon asok. Set path to them in  snap Global Config, also customize the socket prefix and extension might be required.
 
 Now You are ready to use the snap to collect ceph perf counters from local cluster!
 
