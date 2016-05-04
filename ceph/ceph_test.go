@@ -27,6 +27,7 @@ import (
 	"testing"
 
 	"github.com/intelsdi-x/snap/control/plugin"
+	"github.com/intelsdi-x/snap/core"
 	"github.com/intelsdi-x/snap/core/cdata"
 	"github.com/intelsdi-x/snap/core/ctypes"
 	. "github.com/smartystreets/goconvey/convey"
@@ -174,33 +175,33 @@ func Test_getCephDaemonNames(t *testing.T) {
 
 }
 
-func createMockMetrics(count uint64, hostname string) []plugin.PluginMetricType {
-	metrics := make([]plugin.PluginMetricType, count)
+func createMockMetrics(count uint64, hostname string) []plugin.MetricType {
+	metrics := make([]plugin.MetricType, count)
 	for i, _ := range metrics {
 
-		metrics[i] = plugin.PluginMetricType{
-			Namespace_: []string{"test", "metric", "namespace"},
+		metrics[i] = plugin.MetricType{
+			Namespace_: core.NewNamespace("test", "metric", "namespace"),
 			Data_:      1.01 + float32(i),
-			Source_:    hostname,
+			Tags_:      map[string]string{"source": hostname},
 		}
 	}
 
 	return metrics
 }
 
-func checkMetricsResemblance(metrics []plugin.PluginMetricType, metricsMock []plugin.PluginMetricType) {
+func checkMetricsResemblance(metrics []plugin.MetricType, metricsMock []plugin.MetricType) {
 	for i, mock := range metricsMock {
 		So(metrics[i].Namespace(), ShouldResemble, mock.Namespace())
-		So(metrics[i].Source(), ShouldEqual, mock.Source())
+		So(metrics[i].Tags(), ShouldResemble, mock.Tags())
 		So(metrics[i].Data(), ShouldEqual, mock.Data())
 	}
 }
 
 // desiredMtsCnt returns number of desired metrics to collect from specific daemon
-func desiredMtsCnt(daemonName string, metrics []plugin.PluginMetricType) int {
+func desiredMtsCnt(daemonName string, metrics []plugin.MetricType) int {
 	cnt := 0
 	for _, m := range metrics {
-		if m.Namespace()[daemonNameIndex] == daemonName {
+		if m.Namespace()[daemonNameIndex].Value == daemonName {
 			cnt++
 		}
 	}
@@ -209,27 +210,27 @@ func desiredMtsCnt(daemonName string, metrics []plugin.PluginMetricType) int {
 }
 
 func Test_getCephDaemonMetrics(t *testing.T) {
-	mts := []plugin.PluginMetricType{
-		plugin.PluginMetricType{
-			Namespace_: []string{"intel", "storage", "ceph", "mds.a", "a", "aa"},
+	mts := []plugin.MetricType{
+		plugin.MetricType{
+			Namespace_: core.NewNamespace("intel", "storage", "ceph", "mds.a", "a", "aa"),
 		},
-		plugin.PluginMetricType{
-			Namespace_: []string{"intel", "storage", "ceph", "mds.a", "b", "ba"},
+		plugin.MetricType{
+			Namespace_: core.NewNamespace("intel", "storage", "ceph", "mds.a", "b", "ba"),
 		},
-		plugin.PluginMetricType{
-			Namespace_: []string{"intel", "storage", "ceph", "mds.a", "c", "cb", "cba"},
+		plugin.MetricType{
+			Namespace_: core.NewNamespace("intel", "storage", "ceph", "mds.a", "c", "cb", "cba"),
 		},
-		plugin.PluginMetricType{
-			Namespace_: []string{"intel", "storage", "ceph", "mds.a", "c", "cb", "cbb"},
+		plugin.MetricType{
+			Namespace_: core.NewNamespace("intel", "storage", "ceph", "mds.a", "c", "cb", "cbb"),
 		},
-		plugin.PluginMetricType{
-			Namespace_: []string{"intel", "storage", "ceph", "mds.b", "a", "aa"},
+		plugin.MetricType{
+			Namespace_: core.NewNamespace("intel", "storage", "ceph", "mds.b", "a", "aa"),
 		},
-		plugin.PluginMetricType{
-			Namespace_: []string{"intel", "storage", "ceph", "mds.b", "a", "cc"},
+		plugin.MetricType{
+			Namespace_: core.NewNamespace("intel", "storage", "ceph", "mds.b", "a", "cc"),
 		},
-		plugin.PluginMetricType{
-			Namespace_: []string{"intel", "storage", "ceph", "mds.c", "no", "nono"},
+		plugin.MetricType{
+			Namespace_: core.NewNamespace("intel", "storage", "ceph", "mds.c", "no", "nono"),
 		},
 	}
 
@@ -511,12 +512,12 @@ func Test_CollectMetrics(t *testing.T) {
 	// folder for mocked ceph socket, empty in the beginning
 	os.Mkdir("test", os.ModePerm)
 
-	mts := []plugin.PluginMetricType{
-		plugin.PluginMetricType{
-			Namespace_: []string{"intel", "storage", "ceph", "osd.2", "a", "aa"},
+	mts := []plugin.MetricType{
+		plugin.MetricType{
+			Namespace_: core.NewNamespace("intel", "storage", "ceph", "osd.2", "a", "aa"),
 		},
-		plugin.PluginMetricType{
-			Namespace_: []string{"intel", "storage", "ceph", "osd.3", "c", "cb", "cba"},
+		plugin.MetricType{
+			Namespace_: core.NewNamespace("intel", "storage", "ceph", "osd.3", "c", "cb", "cba"),
 		},
 	}
 
@@ -534,7 +535,7 @@ func Test_CollectMetrics(t *testing.T) {
 		ceph := &Ceph{}
 		cmd = &TestCmd{out: mockOut}
 		ceph.daemons = []string{}
-		mts_empty := []plugin.PluginMetricType{}
+		mts_empty := []plugin.MetricType{}
 		So(func() { ceph.CollectMetrics(mts_empty) }, ShouldNotPanic)
 		result, err := ceph.CollectMetrics(mts_empty)
 		So(result, ShouldBeNil)

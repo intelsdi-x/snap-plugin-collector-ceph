@@ -33,6 +33,7 @@ import (
 
 	"github.com/intelsdi-x/snap/control/plugin"
 	"github.com/intelsdi-x/snap/control/plugin/cpolicy"
+	"github.com/intelsdi-x/snap/core"
 	"github.com/intelsdi-x/snap/core/ctypes"
 )
 
@@ -101,7 +102,7 @@ func trimPrefixAndSuffix(s string, prefix string, suffix string) string {
 }
 
 // getCephDaemonMetrics executes "ceph --admin-daemon perf dump" command for defined daemon-socket and returns its metrics
-func (c *Ceph) getCephDaemonMetrics(mts []plugin.PluginMetricType, daemon string) ([]plugin.PluginMetricType, error) {
+func (c *Ceph) getCephDaemonMetrics(mts []plugin.MetricType, daemon string) ([]plugin.MetricType, error) {
 	out, err := cmd.perfDump(filepath.Join(c.path, "ceph"), "--admin-daemon", filepath.Join(c.socket.path, daemon),
 		"perf", "dump")
 	timestamp := time.Now()
@@ -119,29 +120,29 @@ func (c *Ceph) getCephDaemonMetrics(mts []plugin.PluginMetricType, daemon string
 		return nil, err
 	}
 
-	metrics := []plugin.PluginMetricType{}
+	metrics := []plugin.MetricType{}
 
 	for _, m := range mts {
 		nlen := len(m.Namespace())
 		daemonName := trimPrefixAndSuffix(daemon, c.socket.prefix, "."+c.socket.ext)
 
 		// compare daemonName with proper component of metric's namespace [intel storage ceph daemonName]
-		if daemonName == m.Namespace()[daemonNameIndex] {
+		if daemonName == m.Namespace()[daemonNameIndex].Value {
 			// get metrics defined in task for this daemon
 			dat_r := dat
 			// skip the const components of metrics namespace
 			for _, name := range m.Namespace()[daemonNameIndex+1 : nlen-1] {
-				if dat_r[name] == nil {
+				if dat_r[name.Value] == nil {
 					break
 				}
-				dat_r = dat_r[name].(map[string]interface{}) // get metric
+				dat_r = dat_r[name.Value].(map[string]interface{}) // get metric
 			}
 
 			hostname, _ := os.Hostname()
-			metric := plugin.PluginMetricType{
+			metric := plugin.MetricType{
 				Namespace_: m.Namespace(),
-				Data_:      dat_r[m.Namespace()[nlen-1]], // get value of metric
-				Source_:    hostname + "/" + daemonName,
+				Data_:      dat_r[m.Namespace()[nlen-1].Value], // get value of metric
+				Tags_:      map[string]string{"source": hostname + "/" + daemonName},
 				Timestamp_: timestamp,
 			}
 
@@ -158,12 +159,12 @@ func (c *Ceph) getCephDaemonMetrics(mts []plugin.PluginMetricType, daemon string
 }
 
 // CollectMetrics returns all desired Ceph metrics defined in task manifest
-func (ceph *Ceph) CollectMetrics(mts []plugin.PluginMetricType) ([]plugin.PluginMetricType, error) {
+func (ceph *Ceph) CollectMetrics(mts []plugin.MetricType) ([]plugin.MetricType, error) {
 
 	if len(mts) <= 0 {
 		return nil, errors.New("No metrics defined to collect")
 	}
-	metrics := []plugin.PluginMetricType{}
+	metrics := []plugin.MetricType{}
 
 	// init ceph plugin with Config settings (only once)
 	if ceph.initialized == false {
@@ -183,15 +184,15 @@ func (ceph *Ceph) CollectMetrics(mts []plugin.PluginMetricType) ([]plugin.Plugin
 }
 
 // GetMetricTypes returns the metric types exposed by ceph-daemon sockets
-func (ceph *Ceph) GetMetricTypes(cfg plugin.PluginConfigType) ([]plugin.PluginMetricType, error) {
+func (ceph *Ceph) GetMetricTypes(cfg plugin.ConfigType) ([]plugin.MetricType, error) {
 	// init ceph plugin with Global Config params
 	if err := ceph.init(cfg.Table()); err != nil {
 		return nil, err
 	}
 
-	mts := make([]plugin.PluginMetricType, len(ceph.keys))
+	mts := make([]plugin.MetricType, len(ceph.keys))
 	for i, k := range ceph.keys {
-		mts[i] = plugin.PluginMetricType{Namespace_: strings.Split(strings.TrimPrefix(k, "/"), "/")}
+		mts[i] = plugin.MetricType{Namespace_: core.NewNamespace(strings.Split(strings.TrimPrefix(k, "/"), "/")...)}
 	}
 
 	return mts, nil

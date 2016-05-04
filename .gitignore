@@ -32,6 +32,7 @@ gin-bin
 
 # we don't vendor godep _workspace
 **/Godeps/_workspace/**
+vendor/
 
 # OSX stuff
 .DS_Store
