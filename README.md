@@ -25,7 +25,7 @@ This plugin is used in the [snap framework] (http://github.com/intelsdi-x/snap).
 
 ## Getting Started
 
-In order to use this plugin you need Ceph cluster running.  
+In order to use this plugin you need Ceph cluster running.
 
 ### System Requirements
 
@@ -40,7 +40,7 @@ In order to use this plugin you need Ceph cluster running.
 The quickest way to get a Ceph cluster up and running is to follow the Getting Started guides available at http://ceph.com/resources/downloads/. 		It can be tested also on a fake local cluster on Your machine. Read more about [how to deploy fake local Ceph cluster](VCLUSTER.md).
 
 #### To build the plugin binary:
-Fork https://github.com/intelsdi-x/snap-plugin-collector-ceph  
+Fork https://github.com/intelsdi-x/snap-plugin-collector-ceph
 Clone repo into `$GOPATH/src/github.com/intelsdi-x/`:
 
 ```
@@ -55,7 +55,7 @@ This builds the plugin in `/build/rootfs/`
 
 ### Configuration and Usage
 * Set up the [snap framework](https://github.com/intelsdi-x/snap/blob/master/README.md#getting-started)
-* Ensure `$SNAP_PATH` is exported  
+* Ensure `$SNAP_PATH` is exported
 `export SNAP_PATH=$GOPATH/src/github.com/intelsdi-x/snap/build`
 
 * Set proper snap Global Config field(s) to customize Ceph's path:
@@ -69,7 +69,7 @@ Namespace | Data Type | Description
 If sockets do not have prefix, set *socket_prefix="none"*
 
 Sample Global Config is available in folder /examples/configs.
- 
+
 ## Documentation
 
 To learn more about this plugin and ceph perf counters, visit:
@@ -137,7 +137,7 @@ Signed: false
 Loaded Time: Tue, 01 Dec 2015 07:45:58 EST
 ```
 
-Create a task JSON file (exemplary file in examples/tasks/ceph-file.json):  
+Create a task JSON file (exemplary file in examples/tasks/ceph-file.json):
 ```json
 {
     "version": 1,
@@ -148,41 +148,40 @@ Create a task JSON file (exemplary file in examples/tasks/ceph-file.json):
     "workflow": {
         "collect": {
             "metrics": {
-                "/intel/storage/ceph/mon.a/cluster/num_mon": {},
-                "/intel/storage/ceph/mon.a/cluster/num_osd": {},
-                "/intel/storage/ceph/mon.a/cluster/num_object": {},
-                "/intel/storage/ceph/mon.a/cluster/num_pg": {},
-                "/intel/storage/ceph/mon.a/cluster/osd_bytes_used": {},
-                "/intel/storage/ceph/mon.a/cluster/osd_bytes": {},
-                "/intel/storage/ceph/mon.b/cluster/osd_bytes_used": {},
-                "/intel/storage/ceph/mon.b/cluster/osd_bytes": {},
-                "/intel/storage/ceph/osd.0/filestore/bytes": {},
-                "/intel/storage/ceph/osd.0/filestore/journal_bytes": {},
-                "/intel/storage/ceph/osd.0/filestore/journal_latency/avgcount": {},
-                "/intel/storage/ceph/osd.0/filestore/journal_latency/sum": {},
-                "/intel/storage/ceph/osd.0/filestore/journal_queue_bytes": {},
-                "/intel/storage/ceph/osd.0/filestore/journal_queue_max_bytes": {},
-                "/intel/storage/ceph/osd.0/filestore/journal_wr": {},
-                "/intel/storage/ceph/osd.0/filestore/op_queue_bytes": {},
-                "/intel/storage/ceph/osd.0/filestore/op_queue_max_bytes": {},
-                "/intel/storage/ceph/osd.0/filestore/queue_transaction_latency_avg/avgcount": {},
-                "/intel/storage/ceph/osd.0/filestore/queue_transaction_latency_avg/sum": {},
-                "/intel/storage/ceph/osd.0/osd/op": {},
-                "/intel/storage/ceph/osd.0/osd/op_in_bytes": {},
-                "/intel/storage/ceph/osd.0/osd/op_latency/avgcount": {},
-                "/intel/storage/ceph/osd.0/osd/op_latency/sum": {},
-                "/intel/storage/ceph/osd.0/osd/op_process_latency/avgcount": {},
-                "/intel/storage/ceph/osd.0/osd/op_process_latency/sum": {},
-                "/intel/storage/ceph/osd.0/osd/op_w_in_bytes": {},
-                "/intel/storage/ceph/osd.0/osd/op_w_latency/avgcount": {},
-                "/intel/storage/ceph/osd.0/osd/op_w_latency/sum": {},
-                "/intel/storage/ceph/osd.0/osd/op_w_process_latency/avgcount": {},
-                "/intel/storage/ceph/osd.0/osd/op_w_process_latency/sum": {},
-                "/intel/storage/ceph/osd.1/filestore/bytes": {},
-                "/intel/storage/ceph/osd.1/filestore/journal_bytes": {},
-                "/intel/storage/ceph/osd.1/filestore/journal_latency/avgcount": {},
-                "/intel/storage/ceph/mds.a/objecter/op_w": {},
-                "/intel/storage/ceph/mds.b/objecter/op_w": {}
+                "/intel/storage/ceph/mon/a/cluster/num_mon": {},
+                "/intel/storage/ceph/mon/a/cluster/num_osd": {},
+                "/intel/storage/ceph/mon/a/cluster/num_object": {},
+                "/intel/storage/ceph/mon/a/cluster/num_pg": {},
+                "/intel/storage/ceph/mon/a/cluster/osd_bytes_used": {},
+                "/intel/storage/ceph/mon/a/cluster/osd_bytes": {},
+                "/intel/storage/ceph/mon/b/cluster/osd_bytes_used": {},
+                "/intel/storage/ceph/mon/b/cluster/osd_bytes": {},
+                "/intel/storage/ceph/osd/0/filestore/bytes": {},
+                "/intel/storage/ceph/osd/0/filestore/journal_bytes": {},
+                "/intel/storage/ceph/osd/0/filestore/journal_latency/avgcount": {},
+                "/intel/storage/ceph/osd/0/filestore/journal_latency/sum": {},
+                "/intel/storage/ceph/osd/0/filestore/journal_queue_bytes": {},
+                "/intel/storage/ceph/osd/0/filestore/journal_queue_max_bytes": {},
+                "/intel/storage/ceph/osd/0/filestore/journal_wr": {},
+                "/intel/storage/ceph/osd/0/filestore/op_queue_bytes": {},
+                "/intel/storage/ceph/osd/0/filestore/op_queue_max_bytes": {},
+                "/intel/storage/ceph/osd/0/filestore/queue_transaction_latency_avg/avgcount": {},
+                "/intel/storage/ceph/osd/0/filestore/queue_transaction_latency_avg/sum": {},
+                "/intel/storage/ceph/osd/0/osd/op": {},
+                "/intel/storage/ceph/osd/0/osd/op_in_bytes": {},
+                "/intel/storage/ceph/osd/0/osd/op_latency/avgcount": {},
+                "/intel/storage/ceph/osd/0/osd/op_latency/sum": {},
+                "/intel/storage/ceph/osd/0/osd/op_process_latency/avgcount": {},
+                "/intel/storage/ceph/osd/0/osd/op_process_latency/sum": {},
+                "/intel/storage/ceph/osd/0/osd/op_w_in_bytes": {},
+                "/intel/storage/ceph/osd/0/osd/op_w_latency/avgcount": {},
+                "/intel/storage/ceph/osd/0/osd/op_w_latency/sum": {},
+                "/intel/storage/ceph/osd/0/osd/op_w_process_latency/avgcount": {},
+                "/intel/storage/ceph/osd/0/osd/op_w_process_latency/sum": {},
+                "/intel/storage/ceph/osd/1/filestore/bytes": {},
+                "/intel/storage/ceph/osd/1/filestore/journal_bytes": {},
+                "/intel/storage/ceph/osd/1/filestore/journal_latency/avgcount": {},
+                "/intel/storage/ceph/mds/*/objecter/op_w": {}
             },
             "config": {
                 "/intel/storage/ceph": {
@@ -222,41 +221,41 @@ $ snapctl task watch 029cc837-ccd7-41b0-8103-949c0ba0070f
 
 Watching Task (029cc837-ccd7-41b0-8103-949c0ba0070f):
 NAMESPACE                                                                        DATA                    TIMESTAMP                                   SOURCE
-/intel/storage/ceph/mds.a/objecter/op_w                                          36                      2015-12-01 07:48:49.942933001 -0500 EST         gklab-108-166/mds.a
-/intel/storage/ceph/mds.b/objecter/op_w                                          33                      2015-12-01 07:48:50.000874606 -0500 EST         gklab-108-166/mds.b
-/intel/storage/ceph/mon.a/cluster/num_mon                                        3                       2015-12-01 07:48:50.122093748 -0500 EST         gklab-108-166/mon.a
-/intel/storage/ceph/mon.a/cluster/num_object                                     54                      2015-12-01 07:48:50.122093748 -0500 EST         gklab-108-166/mon.a
-/intel/storage/ceph/mon.a/cluster/num_osd                                        3                       2015-12-01 07:48:50.122093748 -0500 EST         gklab-108-166/mon.a
-/intel/storage/ceph/mon.a/cluster/num_pg                                         24                      2015-12-01 07:48:50.122093748 -0500 EST         gklab-108-166/mon.a
-/intel/storage/ceph/mon.a/cluster/osd_bytes                                      4.35501797376e+11       2015-12-01 07:48:50.122093748 -0500 EST         gklab-108-166/mon.a
-/intel/storage/ceph/mon.a/cluster/osd_bytes_used                                 1.21718276096e+11       2015-12-01 07:48:50.122093748 -0500 EST         gklab-108-166/mon.a
-/intel/storage/ceph/mon.b/cluster/osd_bytes                                      4.35501797376e+11       2015-12-01 07:48:50.178708858 -0500 EST         gklab-108-166/mon.b
-/intel/storage/ceph/mon.b/cluster/osd_bytes_used                                 1.21718276096e+11       2015-12-01 07:48:50.178708858 -0500 EST         gklab-108-166/mon.b
-/intel/storage/ceph/osd.0/filestore/bytes                                        387402                  2015-12-01 07:48:50.295831645 -0500 EST         gklab-108-166/osd.0
-/intel/storage/ceph/osd.0/filestore/journal_bytes                                0                       2015-12-01 07:48:50.295831645 -0500 EST         gklab-108-166/osd.0
-/intel/storage/ceph/osd.0/filestore/journal_latency/avgcount                     0                       2015-12-01 07:48:50.295831645 -0500 EST         gklab-108-166/osd.0
-/intel/storage/ceph/osd.0/filestore/journal_latency/sum                          0                       2015-12-01 07:48:50.295831645 -0500 EST         gklab-108-166/osd.0
-/intel/storage/ceph/osd.0/filestore/journal_queue_bytes                          0                       2015-12-01 07:48:50.295831645 -0500 EST         gklab-108-166/osd.0
-/intel/storage/ceph/osd.0/filestore/journal_queue_max_bytes                      0                       2015-12-01 07:48:50.295831645 -0500 EST         gklab-108-166/osd.0
-/intel/storage/ceph/osd.0/filestore/journal_wr                                   0                       2015-12-01 07:48:50.295831645 -0500 EST         gklab-108-166/osd.0
-/intel/storage/ceph/osd.0/filestore/op_queue_bytes                               0                       2015-12-01 07:48:50.295831645 -0500 EST         gklab-108-166/osd.0
-/intel/storage/ceph/osd.0/filestore/op_queue_max_bytes                           1.048576e+08            2015-12-01 07:48:50.295831645 -0500 EST         gklab-108-166/osd.0
-/intel/storage/ceph/osd.0/filestore/queue_transaction_latency_avg/avgcount       216                     2015-12-01 07:48:50.295831645 -0500 EST         gklab-108-166/osd.0
-/intel/storage/ceph/osd.0/filestore/queue_transaction_latency_avg/sum            4.0477e-05              2015-12-01 07:48:50.295831645 -0500 EST         gklab-108-166/osd.0
-/intel/storage/ceph/osd.0/osd/op                                                 4                       2015-12-01 07:48:50.295831645 -0500 EST         gklab-108-166/osd.0
-/intel/storage/ceph/osd.0/osd/op_in_bytes                                        444                     2015-12-01 07:48:50.295831645 -0500 EST         gklab-108-166/osd.0
-/intel/storage/ceph/osd.0/osd/op_latency/avgcount                                4                       2015-12-01 07:48:50.295831645 -0500 EST         gklab-108-166/osd.0
-/intel/storage/ceph/osd.0/osd/op_latency/sum                                     33.209642932            2015-12-01 07:48:50.295831645 -0500 EST         gklab-108-166/osd.0
-/intel/storage/ceph/osd.0/osd/op_process_latency/avgcount                        4                       2015-12-01 07:48:50.295831645 -0500 EST         gklab-108-166/osd.0
-/intel/storage/ceph/osd.0/osd/op_process_latency/sum                             20.001234107            2015-12-01 07:48:50.295831645 -0500 EST         gklab-108-166/osd.0
-/intel/storage/ceph/osd.0/osd/op_w_in_bytes                                      0                       2015-12-01 07:48:50.295831645 -0500 EST         gklab-108-166/osd.0
-/intel/storage/ceph/osd.0/osd/op_w_latency/avgcount                              2                       2015-12-01 07:48:50.295831645 -0500 EST         gklab-108-166/osd.0
-/intel/storage/ceph/osd.0/osd/op_w_latency/sum                                   21.607948808            2015-12-01 07:48:50.295831645 -0500 EST         gklab-108-166/osd.0
-/intel/storage/ceph/osd.0/osd/op_w_process_latency/avgcount                      2                       2015-12-01 07:48:50.295831645 -0500 EST         gklab-108-166/osd.0
-/intel/storage/ceph/osd.0/osd/op_w_process_latency/sum                           10.006580525            2015-12-01 07:48:50.295831645 -0500 EST         gklab-108-166/osd.0
-/intel/storage/ceph/osd.1/filestore/bytes                                        367731                  2015-12-01 07:48:50.374545867 -0500 EST         gklab-108-166/osd.1
-/intel/storage/ceph/osd.1/filestore/journal_bytes                                0                       2015-12-01 07:48:50.374545867 -0500 EST         gklab-108-166/osd.1
-/intel/storage/ceph/osd.1/filestore/journal_latency/avgcount                     0                       2015-12-01 07:48:50.374545867 -0500 EST         gklab-108-166/osd.1
+/intel/storage/ceph/mds/a/objecter/op_w                                          36                      2015-12-01 07:48:49.942933001 -0500 EST         gklab-108-166/mds.a
+/intel/storage/ceph/mds/b/objecter/op_w                                          33                      2015-12-01 07:48:50.000874606 -0500 EST         gklab-108-166/mds.b
+/intel/storage/ceph/mon/a/cluster/num_mon                                        3                       2015-12-01 07:48:50.122093748 -0500 EST         gklab-108-166/mon.a
+/intel/storage/ceph/mon/a/cluster/num_object                                     54                      2015-12-01 07:48:50.122093748 -0500 EST         gklab-108-166/mon.a
+/intel/storage/ceph/mon/a/cluster/num_osd                                        3                       2015-12-01 07:48:50.122093748 -0500 EST         gklab-108-166/mon.a
+/intel/storage/ceph/mon/a/cluster/num_pg                                         24                      2015-12-01 07:48:50.122093748 -0500 EST         gklab-108-166/mon.a
+/intel/storage/ceph/mon/a/cluster/osd_bytes                                      4.35501797376e+11       2015-12-01 07:48:50.122093748 -0500 EST         gklab-108-166/mon.a
+/intel/storage/ceph/mon/a/cluster/osd_bytes_used                                 1.21718276096e+11       2015-12-01 07:48:50.122093748 -0500 EST         gklab-108-166/mon.a
+/intel/storage/ceph/mon/b/cluster/osd_bytes                                      4.35501797376e+11       2015-12-01 07:48:50.178708858 -0500 EST         gklab-108-166/mon.b
+/intel/storage/ceph/mon/b/cluster/osd_bytes_used                                 1.21718276096e+11       2015-12-01 07:48:50.178708858 -0500 EST         gklab-108-166/mon.b
+/intel/storage/ceph/osd/0/filestore/bytes                                        387402                  2015-12-01 07:48:50.295831645 -0500 EST         gklab-108-166/osd.0
+/intel/storage/ceph/osd/0/filestore/journal_bytes                                0                       2015-12-01 07:48:50.295831645 -0500 EST         gklab-108-166/osd.0
+/intel/storage/ceph/osd/0/filestore/journal_latency/avgcount                     0                       2015-12-01 07:48:50.295831645 -0500 EST         gklab-108-166/osd.0
+/intel/storage/ceph/osd/0/filestore/journal_latency/sum                          0                       2015-12-01 07:48:50.295831645 -0500 EST         gklab-108-166/osd.0
+/intel/storage/ceph/osd/0/filestore/journal_queue_bytes                          0                       2015-12-01 07:48:50.295831645 -0500 EST         gklab-108-166/osd.0
+/intel/storage/ceph/osd/0/filestore/journal_queue_max_bytes                      0                       2015-12-01 07:48:50.295831645 -0500 EST         gklab-108-166/osd.0
+/intel/storage/ceph/osd/0/filestore/journal_wr                                   0                       2015-12-01 07:48:50.295831645 -0500 EST         gklab-108-166/osd.0
+/intel/storage/ceph/osd/0/filestore/op_queue_bytes                               0                       2015-12-01 07:48:50.295831645 -0500 EST         gklab-108-166/osd.0
+/intel/storage/ceph/osd/0/filestore/op_queue_max_bytes                           1.048576e+08            2015-12-01 07:48:50.295831645 -0500 EST         gklab-108-166/osd.0
+/intel/storage/ceph/osd/0/filestore/queue_transaction_latency_avg/avgcount       216                     2015-12-01 07:48:50.295831645 -0500 EST         gklab-108-166/osd.0
+/intel/storage/ceph/osd/0/filestore/queue_transaction_latency_avg/sum            4.0477e-05              2015-12-01 07:48:50.295831645 -0500 EST         gklab-108-166/osd.0
+/intel/storage/ceph/osd/0/osd/op                                                 4                       2015-12-01 07:48:50.295831645 -0500 EST         gklab-108-166/osd.0
+/intel/storage/ceph/osd/0/osd/op_in_bytes                                        444                     2015-12-01 07:48:50.295831645 -0500 EST         gklab-108-166/osd.0
+/intel/storage/ceph/osd/0/osd/op_latency/avgcount                                4                       2015-12-01 07:48:50.295831645 -0500 EST         gklab-108-166/osd.0
+/intel/storage/ceph/osd/0/osd/op_latency/sum                                     33.209642932            2015-12-01 07:48:50.295831645 -0500 EST         gklab-108-166/osd.0
+/intel/storage/ceph/osd/0/osd/op_process_latency/avgcount                        4                       2015-12-01 07:48:50.295831645 -0500 EST         gklab-108-166/osd.0
+/intel/storage/ceph/osd/0/osd/op_process_latency/sum                             20.001234107            2015-12-01 07:48:50.295831645 -0500 EST         gklab-108-166/osd.0
+/intel/storage/ceph/osd/0/osd/op_w_in_bytes                                      0                       2015-12-01 07:48:50.295831645 -0500 EST         gklab-108-166/osd.0
+/intel/storage/ceph/osd/0/osd/op_w_latency/avgcount                              2                       2015-12-01 07:48:50.295831645 -0500 EST         gklab-108-166/osd.0
+/intel/storage/ceph/osd/0/osd/op_w_latency/sum                                   21.607948808            2015-12-01 07:48:50.295831645 -0500 EST         gklab-108-166/osd.0
+/intel/storage/ceph/osd/0/osd/op_w_process_latency/avgcount                      2                       2015-12-01 07:48:50.295831645 -0500 EST         gklab-108-166/osd.0
+/intel/storage/ceph/osd/0/osd/op_w_process_latency/sum                           10.006580525            2015-12-01 07:48:50.295831645 -0500 EST         gklab-108-166/osd.0
+/intel/storage/ceph/osd/1/filestore/bytes                                        367731                  2015-12-01 07:48:50.374545867 -0500 EST         gklab-108-166/osd.1
+/intel/storage/ceph/osd/1/filestore/journal_bytes                                0                       2015-12-01 07:48:50.374545867 -0500 EST         gklab-108-166/osd.1
+/intel/storage/ceph/osd/1/filestore/journal_latency/avgcount                     0                       2015-12-01 07:48:50.374545867 -0500 EST         gklab-108-166/osd.1
 ```
 (Keys `ctrl+c` terminate task watcher)
 
@@ -278,7 +277,7 @@ This plugin is in active development. As we launch this plugin, we have a few it
 As we launch this plugin, we do not have any outstanding requirements for the next release. If you have a feature request, please add it as an [issue](https://github.com/intelsdi-x/snap-plugin-collector-ceph/issues).
 
 ## Community Support
-This repository is one of **many** plugins in the **snap**, a powerful telemetry agent framework. See the full project at 
+This repository is one of **many** plugins in the **snap**, a powerful telemetry agent framework. See the full project at
 http://github.com/intelsdi-x/snap. To reach out to other users, head to the [main framework](https://github.com/intelsdi-x/snap#community-support).
 
 

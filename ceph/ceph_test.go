@@ -23,6 +23,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"strings"
 	//	"strings"
 	"testing"
 
@@ -48,8 +49,8 @@ var mockOut = []byte(`{
 					"cba": 22,
 					"cbb": 22.2
 				},
-				"cc": 3 
-			} 
+				"cc": 3
+			}
 		}`)
 
 var mockOutInvalid = []byte(`{
@@ -201,7 +202,7 @@ func checkMetricsResemblance(metrics []plugin.MetricType, metricsMock []plugin.M
 func desiredMtsCnt(daemonName string, metrics []plugin.MetricType) int {
 	cnt := 0
 	for _, m := range metrics {
-		if m.Namespace()[daemonNameIndex].Value == daemonName {
+		if strings.Join([]string{m.Namespace()[daemonNameIndex].Value, m.Namespace()[daemonIDIndex].Value}, ".") == daemonName {
 			cnt++
 		}
 	}
@@ -209,28 +210,28 @@ func desiredMtsCnt(daemonName string, metrics []plugin.MetricType) int {
 	return cnt
 }
 
-func Test_getCephDaemonMetrics(t *testing.T) {
+func Test_GetCephDaemonMetrics(t *testing.T) {
 	mts := []plugin.MetricType{
 		plugin.MetricType{
-			Namespace_: core.NewNamespace("intel", "storage", "ceph", "mds.a", "a", "aa"),
+			Namespace_: core.NewNamespace("intel", "storage", "ceph", "mds", "*", "a", "aa"),
 		},
 		plugin.MetricType{
-			Namespace_: core.NewNamespace("intel", "storage", "ceph", "mds.a", "b", "ba"),
+			Namespace_: core.NewNamespace("intel", "storage", "ceph", "mds", "*", "b", "ba"),
 		},
 		plugin.MetricType{
-			Namespace_: core.NewNamespace("intel", "storage", "ceph", "mds.a", "c", "cb", "cba"),
+			Namespace_: core.NewNamespace("intel", "storage", "ceph", "mds", "*", "c", "cb", "cba"),
 		},
 		plugin.MetricType{
-			Namespace_: core.NewNamespace("intel", "storage", "ceph", "mds.a", "c", "cb", "cbb"),
+			Namespace_: core.NewNamespace("intel", "storage", "ceph", "mds", "*", "c", "cb", "cbb"),
 		},
 		plugin.MetricType{
-			Namespace_: core.NewNamespace("intel", "storage", "ceph", "mds.b", "a", "aa"),
+			Namespace_: core.NewNamespace("intel", "storage", "ceph", "mds", "*", "a", "aa"),
 		},
 		plugin.MetricType{
-			Namespace_: core.NewNamespace("intel", "storage", "ceph", "mds.b", "a", "cc"),
+			Namespace_: core.NewNamespace("intel", "storage", "ceph", "mds", "*", "a", "cc"),
 		},
 		plugin.MetricType{
-			Namespace_: core.NewNamespace("intel", "storage", "ceph", "mds.c", "no", "nono"),
+			Namespace_: core.NewNamespace("intel", "storage", "ceph", "mds", "*", "no", "nono"),
 		},
 	}
 
@@ -239,16 +240,16 @@ func Test_getCephDaemonMetrics(t *testing.T) {
 	Convey("invalid getting metrics, perf dump command execution error", t, func() {
 		cmd = &TestCmd{err: errors.New("exit status 1")}
 
-		So(func() { testCeph.getCephDaemonMetrics(mts, "mds.a") }, ShouldNotPanic)
-		result, err := testCeph.getCephDaemonMetrics(mts, "mds.a")
+		So(func() { testCeph.GetCephDaemonMetrics(mts, "mds.a") }, ShouldNotPanic)
+		result, err := testCeph.GetCephDaemonMetrics(mts, "mds.a")
 		So(result, ShouldBeEmpty)
 		So(err, ShouldNotBeNil)
 	})
 
 	Convey("invalid getting metrics, empty perf dump output", t, func() {
 		cmd = &TestCmd{}
-		So(func() { testCeph.getCephDaemonMetrics(mts, "mds.a") }, ShouldNotPanic)
-		result, err := testCeph.getCephDaemonMetrics(mts, "mds.a")
+		So(func() { testCeph.GetCephDaemonMetrics(mts, "mds.a") }, ShouldNotPanic)
+		result, err := testCeph.GetCephDaemonMetrics(mts, "mds.a")
 		So(result, ShouldBeEmpty)
 		So(err, ShouldNotBeNil)
 	})
@@ -257,8 +258,8 @@ func Test_getCephDaemonMetrics(t *testing.T) {
 		//first mock in mockInUnmarshal is correct
 		cmd = &TestCmd{out: mockInUnmarshal[0]}
 		dName := "mds.a"
-		So(func() { testCeph.getCephDaemonMetrics(mts, dName) }, ShouldNotPanic)
-		result, err := testCeph.getCephDaemonMetrics(mts, dName)
+		So(func() { testCeph.GetCephDaemonMetrics(mts, dName) }, ShouldNotPanic)
+		result, err := testCeph.GetCephDaemonMetrics(mts, dName)
 		So(result, ShouldNotBeEmpty)
 		So(err, ShouldBeNil)
 	})
@@ -267,8 +268,8 @@ func Test_getCephDaemonMetrics(t *testing.T) {
 		for _, moi := range mockInUnmarshal[1:] {
 			cmd = &TestCmd{out: moi}
 			dName := "mds.a"
-			So(func() { testCeph.getCephDaemonMetrics(mts, dName) }, ShouldNotPanic)
-			result, err := testCeph.getCephDaemonMetrics(mts, dName)
+			So(func() { testCeph.GetCephDaemonMetrics(mts, dName) }, ShouldNotPanic)
+			result, err := testCeph.GetCephDaemonMetrics(mts, dName)
 			So(result, ShouldBeEmpty)
 			So(err, ShouldNotBeNil)
 		}
@@ -277,8 +278,8 @@ func Test_getCephDaemonMetrics(t *testing.T) {
 	Convey("no defined desired metrics for daemon", t, func() {
 		cmd = &TestCmd{out: mockOut}
 		dName := "mds.d"
-		So(func() { testCeph.getCephDaemonMetrics(mts, dName) }, ShouldNotPanic)
-		result, err := testCeph.getCephDaemonMetrics(mts, dName)
+		So(func() { testCeph.GetCephDaemonMetrics(mts, dName) }, ShouldNotPanic)
+		result, err := testCeph.GetCephDaemonMetrics(mts, dName)
 		So(result, ShouldBeEmpty)
 		So(err, ShouldNotBeNil)
 	})
@@ -286,18 +287,18 @@ func Test_getCephDaemonMetrics(t *testing.T) {
 	Convey("no available desired metrics for daemon", t, func() {
 		cmd = &TestCmd{out: mockOut}
 		dName := "mds.c"
-		So(func() { testCeph.getCephDaemonMetrics(mts, dName) }, ShouldNotPanic)
-		result, err := testCeph.getCephDaemonMetrics(mts, dName)
+		So(func() { testCeph.GetCephDaemonMetrics(mts, dName) }, ShouldNotPanic)
+		result, err := testCeph.GetCephDaemonMetrics(mts, dName)
 		So(len(result), ShouldEqual, desiredMtsCnt(dName, mts))
-		So(result[0].Data(), ShouldBeNil)
+		//So(result[0].Data(), ShouldBeNil)
 		So(err, ShouldBeNil)
 	})
 
 	Convey("get ceph-daemon metrics (1)", t, func() {
 		cmd = &TestCmd{out: mockOut}
 		dName := "mds.a"
-		So(func() { testCeph.getCephDaemonMetrics(mts, dName) }, ShouldNotPanic)
-		result, err := testCeph.getCephDaemonMetrics(mts, dName)
+		So(func() { testCeph.GetCephDaemonMetrics(mts, dName) }, ShouldNotPanic)
+		result, err := testCeph.GetCephDaemonMetrics(mts, dName)
 		So(result, ShouldNotBeEmpty)
 		So(len(result), ShouldEqual, desiredMtsCnt(dName, mts))
 		So(result[0].Data(), ShouldNotBeNil)
@@ -307,8 +308,8 @@ func Test_getCephDaemonMetrics(t *testing.T) {
 	Convey("get ceph-daemon metrics (2)", t, func() {
 		cmd = &TestCmd{out: mockOut}
 		dName := "mds.b"
-		So(func() { testCeph.getCephDaemonMetrics(mts, dName) }, ShouldNotPanic)
-		result, err := testCeph.getCephDaemonMetrics(mts, dName)
+		So(func() { testCeph.GetCephDaemonMetrics(mts, dName) }, ShouldNotPanic)
+		result, err := testCeph.GetCephDaemonMetrics(mts, dName)
 		So(result, ShouldNotBeEmpty)
 		So(len(result), ShouldEqual, desiredMtsCnt(dName, mts))
 		So(result[0].Data(), ShouldNotBeNil)
@@ -514,10 +515,10 @@ func Test_CollectMetrics(t *testing.T) {
 
 	mts := []plugin.MetricType{
 		plugin.MetricType{
-			Namespace_: core.NewNamespace("intel", "storage", "ceph", "osd.2", "a", "aa"),
+			Namespace_: core.NewNamespace("intel", "storage", "ceph", "osd", "*", "a", "aa"),
 		},
 		plugin.MetricType{
-			Namespace_: core.NewNamespace("intel", "storage", "ceph", "osd.3", "c", "cb", "cba"),
+			Namespace_: core.NewNamespace("intel", "storage", "ceph", "osd", "*", "c", "cb", "cba"),
 		},
 	}
 
@@ -576,6 +577,10 @@ func Test_CollectMetrics(t *testing.T) {
 		cmd = &TestCmd{out: mockOut}
 		So(func() { ceph.CollectMetrics(mts) }, ShouldNotPanic)
 		result, err := ceph.CollectMetrics(mts)
+
+		//for _, res := range result {
+		//	log.Println(res.Namespace().String())
+		//}
 		So(len(result), ShouldEqual, len(mts))
 
 		for _, r := range result {
