@@ -28,8 +28,8 @@ import (
 	"os/exec"
 	"path/filepath"
 	"reflect"
-	"regexp"
 	"strings"
+	"time"
 
 	"github.com/intelsdi-x/snap/control/plugin"
 	"github.com/intelsdi-x/snap/control/plugin/cpolicy"
@@ -155,10 +155,10 @@ func (ceph *Ceph) Init(config map[string]ctypes.ConfigValue) error {
 
 // GetCephDaemonMetrics executes "ceph --admin-daemon perf dump" command for defined daemon-socket and returns its metrics
 func (ceph *Ceph) GetCephDaemonMetrics(mts []plugin.MetricType, daemon string) ([]plugin.MetricType, error) {
-	out, err := cmd.perfDump(filepath.Join(ceph.path, "ceph"), "--admin-daemon", filepath.Join(c.socket.path, daemon),
+	out, err := cmd.perfDump(filepath.Join(ceph.path, "ceph"), "--admin-daemon", filepath.Join(ceph.socket.path, daemon),
 		"perf", "dump")
-	//timestamp := time.Now()
-	//hostname, _ := os.Hostname()
+	timestamp := time.Now()
+	hostname, _ := os.Hostname()
 
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Ceph perf dump command execution failed for socket %+v, err=%+v\n",
@@ -173,67 +173,68 @@ func (ceph *Ceph) GetCephDaemonMetrics(mts []plugin.MetricType, daemon string) (
 		return nil, err
 	}
 
+	daemonNameSplit := strings.Split(trimPrefixAndSuffix(daemon, ceph.socket.prefix, "."+ceph.socket.ext), ".")
+	daemonName := daemonNameSplit[0]
+	daemonID := daemonNameSplit[1]
+
 	metrics := []plugin.MetricType{}
-	jsonMetrics := make(map[string]interface{})
 
 	for _, m := range mts {
-		daemonName := trimPrefixAndSuffix(daemon, ceph.socket.prefix, "."+ceph.socket.ext)
-
-		// Match daemon name with namespace, for example osd/* is formatted as osd.* wchich matches osd.1, osd.2, osd.3 etc
-		matchDaemon, _ := regexp.MatchString(strings.Join(m.Namespace().Strings()[daemonNameIndex:daemonIDIndex], `\.`), daemonName)
-
 		// Get metrics defined in task for this daemon
-		if matchDaemon {
-			ceph.getJsonDataByNamespace(jsonData, m.Namespace().Strings()[daemonIDIndex+1:], []string{}, &jsonMetrics)
+		if matchSlice(m.Namespace().Strings()[daemonNameIndex:daemonIDIndex+1], daemonNameSplit) {
+			daemonMetrics := make(map[string]interface{})
+			ceph.getJsonDataByNamespace(jsonData, m.Namespace().Strings()[daemonIDIndex+1:], []string{}, &daemonMetrics)
 
-			fmt.Printf("%+v", jsonMetrics)
+			// No metrics found for desired namespace
+			if len(daemonMetrics) == 0 {
+				daemonMetrics[strings.Join(m.Namespace().Strings()[daemonIDIndex+1:], "/")] = nil
+			}
 
-			// metric := plugin.MetricType{
-			// 	Namespace_: m.Namespace(),
-			// 	Data_:      value, // get value of metric
-			// 	Tags_:      map[string]string{core.STD_TAG_PLUGIN_RUNNING_ON: hostname + "/" + daemonName},
-			// 	Timestamp_: timestamp,
-			// }
+			for ns, data := range daemonMetrics {
+				metric := plugin.MetricType{
+					Namespace_: core.NewNamespace(m.Namespace().Strings()[:daemonIDIndex]...).AddStaticElement(daemonID).AddStaticElements(strings.Split(ns, "/")...),
+					Data_:      data, // get value of metric
+					Tags_:      map[string]string{core.STD_TAG_PLUGIN_RUNNING_ON: hostname + "/" + daemonName + "." + daemonID},
+					Timestamp_: timestamp,
+				}
 
-			// metrics = append(metrics, metric)
+				metrics = append(metrics, metric)
+			}
 		}
+	}
+
+	// No metrics fount at all
+	if len(metrics) == 0 {
+		return metrics, errors.New("No metrics found!")
 	}
 
 	return metrics, nil
 }
 
-func sliceMatch(a, b []string) bool {
-	match := true
-
+// matchSlice matches 2 slices with asterisk support
+func matchSlice(a, b []string) bool {
 	for i := range a {
 		if a[i] != b[i] && a[i] != "*" && b[i] != "*" {
-			match = false
+			return false
 		}
 	}
 
-	return match
+	return true && (len(a) == len(b))
 }
 
 func (ceph *Ceph) getJsonDataByNamespace(data map[string]interface{}, namespace []string, resultNamespace []string, results *map[string]interface{}) {
-	fmt.Println("\n---------------------- NEW RECURRENCY CALL")
-	fmt.Println("Namespace: ", namespace)
 	// Go through all JSON data keys
 	for key, _ := range data {
-		fmt.Println("> Checking key ", key, " with namespace ", namespace)
 
 		// Convert ceph key to namespace slice for comparsion
 		keyNs := strings.Split(key, ".")
 
-		if sliceMatch(namespace[0:len(keyNs)], keyNs) {
-			fmt.Println("\t> MATCH", keyNs)
-
+		if matchSlice(namespace[:len(keyNs)], keyNs) {
 			if reflect.ValueOf(data[key]).Kind() == reflect.Map {
 				// Go deeper into JSON structure
 				ceph.getJsonDataByNamespace(data[key].(map[string]interface{}), namespace[len(keyNs):], append(resultNamespace, keyNs...), results)
-				fmt.Println("BACK IN RECURRENCY PARENT")
 			} else {
-				fmt.Println("============================================ GOT IT!")
-				(*results)[strings.Join(resultNamespace, "/")] = data[key]
+				(*results)[strings.Join(resultNamespace, "/")+"/"+key] = data[key]
 			}
 		}
 	}
@@ -241,7 +242,6 @@ func (ceph *Ceph) getJsonDataByNamespace(data map[string]interface{}, namespace 
 
 // CollectMetrics returns all desired Ceph metrics defined in task manifest
 func (ceph *Ceph) CollectMetrics(mts []plugin.MetricType) ([]plugin.MetricType, error) {
-
 	if len(mts) <= 0 {
 		return nil, errors.New("No metrics defined to collect")
 	}
