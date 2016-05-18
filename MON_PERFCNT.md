@@ -22,7 +22,7 @@ limitations under the License.
 
 # Ceph MON Perf Counters
 
-Prefix: /intel/storage/ceph/{mon_daemon_name}/
+Prefix: /intel/storage/ceph/{mon_daemon_name}/{mon_daemon_id}
 
 Metrics | Description
 ------------ | -------------
@@ -49,9 +49,9 @@ cluster/num_mds_up | MDSs that are up
 cluster/num_mds_in | MDS in state \in\ (they are in cluster)
 cluster/num_mds_failed | Failed MDS
 cluster/mds_epoch | Current epoch of MDS map
- | 
+ |
 finisher-monstore/queue_len | Length of queue in finisher-monstore
- | 
+ |
 leveldb/leveldb_get | Gets
 leveldb/leveldb_transaction | Transactions
 leveldb/leveldb_get_latency | Get Latency
@@ -61,7 +61,7 @@ leveldb/leveldb_compact | Compactions
 leveldb/leveldb_compact_range | Compactions by range
 leveldb/leveldb_compact_queue_merge | Mergings of ranges in compaction queue
 leveldb/leveldb_compact_queue_len | Length of compaction queue
- | 
+ |
 mon/num_sessions | Open sessions
 mon/session_add | Created sessions
 mon/session_rm | Removed sessions
@@ -70,7 +70,7 @@ mon/num_elections | Elections participated in
 mon/election_call | Elections started
 mon/election_win | Elections won
 mon/election_lose | Elections lost
- | 
+ |
 paxos/start_leader | Starts in leader role
 paxos/start_peon | Starts in peon role
 paxos/restart | Restarts
@@ -118,7 +118,7 @@ paxos/share_state_bytes/sum | Data in shared state
 paxos/new_pn | New proposal number queries
 paxos/new_pn_latency/avgcount | New proposal number getting latency
 paxos/new_pn_latency/sum | New proposal number getting latency
- | 
+ |
 throttle-mon_client_bytes/val | Currently available throttle
 throttle-mon_client_bytes/max | Max value for throttle
 throttle-mon_client_bytes/get | Gets
@@ -131,7 +131,7 @@ throttle-mon_client_bytes/put | Puts
 throttle-mon_client_bytes/put_sum | Put data
 throttle-mon_client_bytes/wait/avgcount | Waiting latency
 throttle-mon_client_bytes/wait/sum | Waiting latency
- | 
+ |
 throttle-mon_daemon_bytes/val | Currently available throttle
 throttle-mon_daemon_bytes/max | Max value for throttle
 throttle-mon_daemon_bytes/get | Gets
@@ -144,7 +144,7 @@ throttle-mon_daemon_bytes/put | Puts
 throttle-mon_daemon_bytes/put_sum | Put data
 throttle-mon_daemon_bytes/wait/avgcount | Waiting latency
 throttle-mon_daemon_bytes/wait/sum | Waiting latency
- | 
+ |
 throttle-msgr_dispatch_throttler-mon/val | Currently available throttle
 throttle-msgr_dispatch_throttler-mon/max | Max value for throttle
 throttle-msgr_dispatch_throttler-mon/get | Gets
