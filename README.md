@@ -111,7 +111,7 @@ Load ceph plugin for collecting:
 $ snapctl plugin load $SNAP_CEPH_PLUGIN_DIR/build/rootfs/snap-plugin-collector-ceph
 Plugin loaded
 Name: ceph
-Version: 1
+Version: 4
 Type: collector
 Signed: false
 Loaded Time: Tue, 01 Dec 2015 06:19:48 EST
@@ -131,7 +131,7 @@ Load file plugin for publishing:
 $ snapctl plugin load $SNAP_DIR/build/plugin/snap-publisher-file
 Plugin loaded
 Name: file
-Version: 3
+Version: 4
 Type: publisher
 Signed: false
 Loaded Time: Tue, 01 Dec 2015 07:45:58 EST
@@ -140,67 +140,46 @@ Loaded Time: Tue, 01 Dec 2015 07:45:58 EST
 Create a task JSON file (exemplary file in examples/tasks/ceph-file.json):
 ```json
 {
-    "version": 1,
-    "schedule": {
-        "type": "simple",
-        "interval": "1s"
-    },
-    "workflow": {
-        "collect": {
-            "metrics": {
-                "/intel/storage/ceph/mon/a/cluster/num_mon": {},
-                "/intel/storage/ceph/mon/a/cluster/num_osd": {},
-                "/intel/storage/ceph/mon/a/cluster/num_object": {},
-                "/intel/storage/ceph/mon/a/cluster/num_pg": {},
-                "/intel/storage/ceph/mon/a/cluster/osd_bytes_used": {},
-                "/intel/storage/ceph/mon/a/cluster/osd_bytes": {},
-                "/intel/storage/ceph/mon/b/cluster/osd_bytes_used": {},
-                "/intel/storage/ceph/mon/b/cluster/osd_bytes": {},
-                "/intel/storage/ceph/osd/0/filestore/bytes": {},
-                "/intel/storage/ceph/osd/0/filestore/journal_bytes": {},
-                "/intel/storage/ceph/osd/0/filestore/journal_latency/avgcount": {},
-                "/intel/storage/ceph/osd/0/filestore/journal_latency/sum": {},
-                "/intel/storage/ceph/osd/0/filestore/journal_queue_bytes": {},
-                "/intel/storage/ceph/osd/0/filestore/journal_queue_max_bytes": {},
-                "/intel/storage/ceph/osd/0/filestore/journal_wr": {},
-                "/intel/storage/ceph/osd/0/filestore/op_queue_bytes": {},
-                "/intel/storage/ceph/osd/0/filestore/op_queue_max_bytes": {},
-                "/intel/storage/ceph/osd/0/filestore/queue_transaction_latency_avg/avgcount": {},
-                "/intel/storage/ceph/osd/0/filestore/queue_transaction_latency_avg/sum": {},
-                "/intel/storage/ceph/osd/0/osd/op": {},
-                "/intel/storage/ceph/osd/0/osd/op_in_bytes": {},
-                "/intel/storage/ceph/osd/0/osd/op_latency/avgcount": {},
-                "/intel/storage/ceph/osd/0/osd/op_latency/sum": {},
-                "/intel/storage/ceph/osd/0/osd/op_process_latency/avgcount": {},
-                "/intel/storage/ceph/osd/0/osd/op_process_latency/sum": {},
-                "/intel/storage/ceph/osd/0/osd/op_w_in_bytes": {},
-                "/intel/storage/ceph/osd/0/osd/op_w_latency/avgcount": {},
-                "/intel/storage/ceph/osd/0/osd/op_w_latency/sum": {},
-                "/intel/storage/ceph/osd/0/osd/op_w_process_latency/avgcount": {},
-                "/intel/storage/ceph/osd/0/osd/op_w_process_latency/sum": {},
-                "/intel/storage/ceph/osd/1/filestore/bytes": {},
-                "/intel/storage/ceph/osd/1/filestore/journal_bytes": {},
-                "/intel/storage/ceph/osd/1/filestore/journal_latency/avgcount": {},
-                "/intel/storage/ceph/mds/*/objecter/op_w": {}
-            },
-            "config": {
-                "/intel/storage/ceph": {
-                    "user": "root",
-                    "password": "secret"
-                }
-            },
-            "process": null,
-            "publish": [
-                {
-                    "plugin_name": "file",
-                    "plugin_version": 3,
-                    "config": {
-                        "file": "/tmp/published_ceph"
-                    }
-                }
-            ]
-        }
+  "version": 1,
+  "schedule": {
+      "type": "simple",
+      "interval": "1s"
+  },
+  "workflow": {
+    "collect": {
+      "metrics": {
+        "/intel/storage/ceph/mon/*/cluster/num_mon": {},
+        "/intel/storage/ceph/mon/*/cluster/num_osd": {},
+        "/intel/storage/ceph/mon/*/cluster/num_object": {},
+        "/intel/storage/ceph/mon/*/cluster/num_pg": {},
+        "/intel/storage/ceph/mon/*/cluster/osd_bytes_used": {},
+        "/intel/storage/ceph/mon/*/cluster/osd_bytes": {},
+        "/intel/storage/ceph/mon/*/cluster/osd_bytes_used": {},
+        "/intel/storage/ceph/mon/*/cluster/osd_bytes": {},
+        "/intel/storage/ceph/osd/*/osd/op": {},
+        "/intel/storage/ceph/osd/*/osd/op_in_bytes": {},
+        "/intel/storage/ceph/osd/*/osd/op_latency/avgcount": {},
+        "/intel/storage/ceph/osd/*/osd/op_latency/sum": {},
+        "/intel/storage/ceph/osd/*/osd/op_process_latency/avgcount": {},
+        "/intel/storage/ceph/osd/*/osd/op_process_latency/sum": {},
+        "/intel/storage/ceph/osd/*/osd/op_w_in_bytes": {},
+        "/intel/storage/ceph/osd/*/osd/op_w_latency/avgcount": {},
+        "/intel/storage/ceph/osd/*/osd/op_w_latency/sum": {},
+        "/intel/storage/ceph/osd/*/osd/op_w_process_latency/avgcount": {},
+        "/intel/storage/ceph/osd/*/osd/op_w_process_latency/sum": {},
+        "/intel/storage/ceph/osd/*/mutex-OSD:ShardedOpWQ:/*/wait/avgcount": {},
+        "/intel/storage/ceph/osd/*/mutex-OSD:ShardedOpWQ:/*/wait/sum": {},
+        "/intel/storage/ceph/osd/*/mutex-OSD:ShardedOpWQ:order:/*/wait/avgcount": {},
+        "/intel/storage/ceph/osd/*/mutex-OSD:ShardedOpWQ:order:/*/wait/sum": {}
+      },
+      "config": {
+          "/intel/storage/ceph": {
+              "user": "root",
+              "password": "secret"
+          }
+      }
     }
+  }
 }
 ```
 
@@ -220,42 +199,75 @@ See sample output from `snapctl task watch <task_id>`
 $ snapctl task watch 029cc837-ccd7-41b0-8103-949c0ba0070f
 
 Watching Task (029cc837-ccd7-41b0-8103-949c0ba0070f):
-NAMESPACE                                                                        DATA                    TIMESTAMP                                   SOURCE
-/intel/storage/ceph/mds/a/objecter/op_w                                          36                      2015-12-01 07:48:49.942933001 -0500 EST         gklab-108-166/mds.a
-/intel/storage/ceph/mds/b/objecter/op_w                                          33                      2015-12-01 07:48:50.000874606 -0500 EST         gklab-108-166/mds.b
-/intel/storage/ceph/mon/a/cluster/num_mon                                        3                       2015-12-01 07:48:50.122093748 -0500 EST         gklab-108-166/mon.a
-/intel/storage/ceph/mon/a/cluster/num_object                                     54                      2015-12-01 07:48:50.122093748 -0500 EST         gklab-108-166/mon.a
-/intel/storage/ceph/mon/a/cluster/num_osd                                        3                       2015-12-01 07:48:50.122093748 -0500 EST         gklab-108-166/mon.a
-/intel/storage/ceph/mon/a/cluster/num_pg                                         24                      2015-12-01 07:48:50.122093748 -0500 EST         gklab-108-166/mon.a
-/intel/storage/ceph/mon/a/cluster/osd_bytes                                      4.35501797376e+11       2015-12-01 07:48:50.122093748 -0500 EST         gklab-108-166/mon.a
-/intel/storage/ceph/mon/a/cluster/osd_bytes_used                                 1.21718276096e+11       2015-12-01 07:48:50.122093748 -0500 EST         gklab-108-166/mon.a
-/intel/storage/ceph/mon/b/cluster/osd_bytes                                      4.35501797376e+11       2015-12-01 07:48:50.178708858 -0500 EST         gklab-108-166/mon.b
-/intel/storage/ceph/mon/b/cluster/osd_bytes_used                                 1.21718276096e+11       2015-12-01 07:48:50.178708858 -0500 EST         gklab-108-166/mon.b
-/intel/storage/ceph/osd/0/filestore/bytes                                        387402                  2015-12-01 07:48:50.295831645 -0500 EST         gklab-108-166/osd.0
-/intel/storage/ceph/osd/0/filestore/journal_bytes                                0                       2015-12-01 07:48:50.295831645 -0500 EST         gklab-108-166/osd.0
-/intel/storage/ceph/osd/0/filestore/journal_latency/avgcount                     0                       2015-12-01 07:48:50.295831645 -0500 EST         gklab-108-166/osd.0
-/intel/storage/ceph/osd/0/filestore/journal_latency/sum                          0                       2015-12-01 07:48:50.295831645 -0500 EST         gklab-108-166/osd.0
-/intel/storage/ceph/osd/0/filestore/journal_queue_bytes                          0                       2015-12-01 07:48:50.295831645 -0500 EST         gklab-108-166/osd.0
-/intel/storage/ceph/osd/0/filestore/journal_queue_max_bytes                      0                       2015-12-01 07:48:50.295831645 -0500 EST         gklab-108-166/osd.0
-/intel/storage/ceph/osd/0/filestore/journal_wr                                   0                       2015-12-01 07:48:50.295831645 -0500 EST         gklab-108-166/osd.0
-/intel/storage/ceph/osd/0/filestore/op_queue_bytes                               0                       2015-12-01 07:48:50.295831645 -0500 EST         gklab-108-166/osd.0
-/intel/storage/ceph/osd/0/filestore/op_queue_max_bytes                           1.048576e+08            2015-12-01 07:48:50.295831645 -0500 EST         gklab-108-166/osd.0
-/intel/storage/ceph/osd/0/filestore/queue_transaction_latency_avg/avgcount       216                     2015-12-01 07:48:50.295831645 -0500 EST         gklab-108-166/osd.0
-/intel/storage/ceph/osd/0/filestore/queue_transaction_latency_avg/sum            4.0477e-05              2015-12-01 07:48:50.295831645 -0500 EST         gklab-108-166/osd.0
-/intel/storage/ceph/osd/0/osd/op                                                 4                       2015-12-01 07:48:50.295831645 -0500 EST         gklab-108-166/osd.0
-/intel/storage/ceph/osd/0/osd/op_in_bytes                                        444                     2015-12-01 07:48:50.295831645 -0500 EST         gklab-108-166/osd.0
-/intel/storage/ceph/osd/0/osd/op_latency/avgcount                                4                       2015-12-01 07:48:50.295831645 -0500 EST         gklab-108-166/osd.0
-/intel/storage/ceph/osd/0/osd/op_latency/sum                                     33.209642932            2015-12-01 07:48:50.295831645 -0500 EST         gklab-108-166/osd.0
-/intel/storage/ceph/osd/0/osd/op_process_latency/avgcount                        4                       2015-12-01 07:48:50.295831645 -0500 EST         gklab-108-166/osd.0
-/intel/storage/ceph/osd/0/osd/op_process_latency/sum                             20.001234107            2015-12-01 07:48:50.295831645 -0500 EST         gklab-108-166/osd.0
-/intel/storage/ceph/osd/0/osd/op_w_in_bytes                                      0                       2015-12-01 07:48:50.295831645 -0500 EST         gklab-108-166/osd.0
-/intel/storage/ceph/osd/0/osd/op_w_latency/avgcount                              2                       2015-12-01 07:48:50.295831645 -0500 EST         gklab-108-166/osd.0
-/intel/storage/ceph/osd/0/osd/op_w_latency/sum                                   21.607948808            2015-12-01 07:48:50.295831645 -0500 EST         gklab-108-166/osd.0
-/intel/storage/ceph/osd/0/osd/op_w_process_latency/avgcount                      2                       2015-12-01 07:48:50.295831645 -0500 EST         gklab-108-166/osd.0
-/intel/storage/ceph/osd/0/osd/op_w_process_latency/sum                           10.006580525            2015-12-01 07:48:50.295831645 -0500 EST         gklab-108-166/osd.0
-/intel/storage/ceph/osd/1/filestore/bytes                                        367731                  2015-12-01 07:48:50.374545867 -0500 EST         gklab-108-166/osd.1
-/intel/storage/ceph/osd/1/filestore/journal_bytes                                0                       2015-12-01 07:48:50.374545867 -0500 EST         gklab-108-166/osd.1
-/intel/storage/ceph/osd/1/filestore/journal_latency/avgcount                     0                       2015-12-01 07:48:50.374545867 -0500 EST         gklab-108-166/osd.1
+NAMESPACE                                                                DATA                    TIMESTAMP
+/intel/storage/ceph/mon/a/cluster/num_mon                                1                       2016-05-18 13:53:09.240048827 +0200 CEST
+/intel/storage/ceph/mon/a/cluster/num_object                             20                      2016-05-18 13:53:09.240048827 +0200 CEST
+/intel/storage/ceph/mon/a/cluster/num_osd                                2                       2016-05-18 13:53:09.240048827 +0200 CEST
+/intel/storage/ceph/mon/a/cluster/num_pg                                 24                      2016-05-18 13:53:09.240048827 +0200 CEST
+/intel/storage/ceph/mon/a/cluster/osd_bytes                              2.147483648e+09         2016-05-18 13:53:09.240048827 +0200 CEST
+/intel/storage/ceph/mon/a/cluster/osd_bytes_used                         40960                   2016-05-18 13:53:09.240048827 +0200 CEST
+/intel/storage/ceph/osd/0/mutex-OSD:ShardedOpWQ:/0/wait/avgcount         0                       2016-05-18 13:53:09.525787646 +0200 CEST
+/intel/storage/ceph/osd/0/mutex-OSD:ShardedOpWQ:/0/wait/sum              0                       2016-05-18 13:53:09.525787646 +0200 CEST
+/intel/storage/ceph/osd/0/mutex-OSD:ShardedOpWQ:/1/wait/avgcount         0                       2016-05-18 13:53:09.525787646 +0200 CEST
+/intel/storage/ceph/osd/0/mutex-OSD:ShardedOpWQ:/1/wait/sum              0                       2016-05-18 13:53:09.525787646 +0200 CEST
+/intel/storage/ceph/osd/0/mutex-OSD:ShardedOpWQ:/2/wait/avgcount         0                       2016-05-18 13:53:09.525787646 +0200 CEST
+/intel/storage/ceph/osd/0/mutex-OSD:ShardedOpWQ:/2/wait/sum              0                       2016-05-18 13:53:09.525787646 +0200 CEST
+/intel/storage/ceph/osd/0/mutex-OSD:ShardedOpWQ:/3/wait/avgcount         0                       2016-05-18 13:53:09.525787646 +0200 CEST
+/intel/storage/ceph/osd/0/mutex-OSD:ShardedOpWQ:/3/wait/sum              0                       2016-05-18 13:53:09.525787646 +0200 CEST
+/intel/storage/ceph/osd/0/mutex-OSD:ShardedOpWQ:/4/wait/avgcount         0                       2016-05-18 13:53:09.525787646 +0200 CEST
+/intel/storage/ceph/osd/0/mutex-OSD:ShardedOpWQ:/4/wait/sum              0                       2016-05-18 13:53:09.525787646 +0200 CEST
+/intel/storage/ceph/osd/0/mutex-OSD:ShardedOpWQ:order:/0/wait/avgcount   0                       2016-05-18 13:53:09.525787646 +0200 CEST
+/intel/storage/ceph/osd/0/mutex-OSD:ShardedOpWQ:order:/0/wait/sum        0                       2016-05-18 13:53:09.525787646 +0200 CEST
+/intel/storage/ceph/osd/0/mutex-OSD:ShardedOpWQ:order:/1/wait/avgcount   0                       2016-05-18 13:53:09.525787646 +0200 CEST
+/intel/storage/ceph/osd/0/mutex-OSD:ShardedOpWQ:order:/1/wait/sum        0                       2016-05-18 13:53:09.525787646 +0200 CEST
+/intel/storage/ceph/osd/0/mutex-OSD:ShardedOpWQ:order:/2/wait/avgcount   0                       2016-05-18 13:53:09.525787646 +0200 CEST
+/intel/storage/ceph/osd/0/mutex-OSD:ShardedOpWQ:order:/2/wait/sum        0                       2016-05-18 13:53:09.525787646 +0200 CEST
+/intel/storage/ceph/osd/0/mutex-OSD:ShardedOpWQ:order:/3/wait/avgcount   0                       2016-05-18 13:53:09.525787646 +0200 CEST
+/intel/storage/ceph/osd/0/mutex-OSD:ShardedOpWQ:order:/3/wait/sum        0                       2016-05-18 13:53:09.525787646 +0200 CEST
+/intel/storage/ceph/osd/0/mutex-OSD:ShardedOpWQ:order:/4/wait/avgcount   0                       2016-05-18 13:53:09.525787646 +0200 CEST
+/intel/storage/ceph/osd/0/mutex-OSD:ShardedOpWQ:order:/4/wait/sum        0                       2016-05-18 13:53:09.525787646 +0200 CEST
+/intel/storage/ceph/osd/0/osd/op                                         8                       2016-05-18 13:53:09.525787646 +0200 CEST
+/intel/storage/ceph/osd/0/osd/op_in_bytes                                1032                    2016-05-18 13:53:09.525787646 +0200 CEST
+/intel/storage/ceph/osd/0/osd/op_latency/avgcount                        8                       2016-05-18 13:53:09.525787646 +0200 CEST
+/intel/storage/ceph/osd/0/osd/op_latency/sum                             0.129517079             2016-05-18 13:53:09.525787646 +0200 CEST
+/intel/storage/ceph/osd/0/osd/op_process_latency/avgcount                8                       2016-05-18 13:53:09.525787646 +0200 CEST
+/intel/storage/ceph/osd/0/osd/op_process_latency/sum                     0.052744465             2016-05-18 13:53:09.525787646 +0200 CEST
+/intel/storage/ceph/osd/0/osd/op_w_in_bytes                              0                       2016-05-18 13:53:09.525787646 +0200 CEST
+/intel/storage/ceph/osd/0/osd/op_w_latency/avgcount                      4                       2016-05-18 13:53:09.525787646 +0200 CEST
+/intel/storage/ceph/osd/0/osd/op_w_latency/sum                           0.069272785             2016-05-18 13:53:09.525787646 +0200 CEST
+/intel/storage/ceph/osd/0/osd/op_w_process_latency/avgcount              4                       2016-05-18 13:53:09.525787646 +0200 CEST
+/intel/storage/ceph/osd/0/osd/op_w_process_latency/sum                   0.007925617             2016-05-18 13:53:09.525787646 +0200 CEST
+/intel/storage/ceph/osd/1/mutex-OSD:ShardedOpWQ:/0/wait/avgcount         0                       2016-05-18 13:53:09.71031397 +0200 CEST
+/intel/storage/ceph/osd/1/mutex-OSD:ShardedOpWQ:/0/wait/sum              0                       2016-05-18 13:53:09.71031397 +0200 CEST
+/intel/storage/ceph/osd/1/mutex-OSD:ShardedOpWQ:/1/wait/avgcount         0                       2016-05-18 13:53:09.71031397 +0200 CEST
+/intel/storage/ceph/osd/1/mutex-OSD:ShardedOpWQ:/1/wait/sum              0                       2016-05-18 13:53:09.71031397 +0200 CEST
+/intel/storage/ceph/osd/1/mutex-OSD:ShardedOpWQ:/2/wait/avgcount         0                       2016-05-18 13:53:09.71031397 +0200 CEST
+/intel/storage/ceph/osd/1/mutex-OSD:ShardedOpWQ:/2/wait/sum              0                       2016-05-18 13:53:09.71031397 +0200 CEST
+/intel/storage/ceph/osd/1/mutex-OSD:ShardedOpWQ:/3/wait/avgcount         0                       2016-05-18 13:53:09.71031397 +0200 CEST
+/intel/storage/ceph/osd/1/mutex-OSD:ShardedOpWQ:/3/wait/sum              0                       2016-05-18 13:53:09.71031397 +0200 CEST
+/intel/storage/ceph/osd/1/mutex-OSD:ShardedOpWQ:/4/wait/avgcount         0                       2016-05-18 13:53:09.71031397 +0200 CEST
+/intel/storage/ceph/osd/1/mutex-OSD:ShardedOpWQ:/4/wait/sum              0                       2016-05-18 13:53:09.71031397 +0200 CEST
+/intel/storage/ceph/osd/1/mutex-OSD:ShardedOpWQ:order:/0/wait/avgcount   0                       2016-05-18 13:53:09.71031397 +0200 CEST
+/intel/storage/ceph/osd/1/mutex-OSD:ShardedOpWQ:order:/0/wait/sum        0                       2016-05-18 13:53:09.71031397 +0200 CEST
+/intel/storage/ceph/osd/1/mutex-OSD:ShardedOpWQ:order:/1/wait/avgcount   0                       2016-05-18 13:53:09.71031397 +0200 CEST
+/intel/storage/ceph/osd/1/mutex-OSD:ShardedOpWQ:order:/1/wait/sum        0                       2016-05-18 13:53:09.71031397 +0200 CEST
+/intel/storage/ceph/osd/1/mutex-OSD:ShardedOpWQ:order:/2/wait/avgcount   0                       2016-05-18 13:53:09.71031397 +0200 CEST
+/intel/storage/ceph/osd/1/mutex-OSD:ShardedOpWQ:order:/2/wait/sum        0                       2016-05-18 13:53:09.71031397 +0200 CEST
+/intel/storage/ceph/osd/1/mutex-OSD:ShardedOpWQ:order:/3/wait/avgcount   0                       2016-05-18 13:53:09.71031397 +0200 CEST
+/intel/storage/ceph/osd/1/mutex-OSD:ShardedOpWQ:order:/3/wait/sum        0                       2016-05-18 13:53:09.71031397 +0200 CEST
+/intel/storage/ceph/osd/1/mutex-OSD:ShardedOpWQ:order:/4/wait/avgcount   0                       2016-05-18 13:53:09.71031397 +0200 CEST
+/intel/storage/ceph/osd/1/mutex-OSD:ShardedOpWQ:order:/4/wait/sum        0                       2016-05-18 13:53:09.71031397 +0200 CEST
+/intel/storage/ceph/osd/1/osd/op                                         22                      2016-05-18 13:53:09.71031397 +0200 CEST
+/intel/storage/ceph/osd/1/osd/op_in_bytes                                8680                    2016-05-18 13:53:09.71031397 +0200 CEST
+/intel/storage/ceph/osd/1/osd/op_latency/avgcount                        22                      2016-05-18 13:53:09.71031397 +0200 CEST
+/intel/storage/ceph/osd/1/osd/op_latency/sum                             0.301337162             2016-05-18 13:53:09.71031397 +0200 CEST
+/intel/storage/ceph/osd/1/osd/op_process_latency/avgcount                22                      2016-05-18 13:53:09.71031397 +0200 CEST
+/intel/storage/ceph/osd/1/osd/op_process_latency/sum                     0.155083372             2016-05-18 13:53:09.71031397 +0200 CEST
+/intel/storage/ceph/osd/1/osd/op_w_in_bytes                              2082                    2016-05-18 13:53:09.71031397 +0200 CEST
+/intel/storage/ceph/osd/1/osd/op_w_latency/avgcount                      14                      2016-05-18 13:53:09.71031397 +0200 CEST
+/intel/storage/ceph/osd/1/osd/op_w_latency/sum                           0.201424953             2016-05-18 13:53:09.71031397 +0200 CEST
+/intel/storage/ceph/osd/1/osd/op_w_process_latency/avgcount              14                      2016-05-18 13:53:09.71031397 +0200 CEST
+/intel/storage/ceph/osd/1/osd/op_w_process_latency/sum                   0.088965235             2016-05-18 13:53:09.71031397 +0200 CEST
 ```
 (Keys `ctrl+c` terminate task watcher)
 
