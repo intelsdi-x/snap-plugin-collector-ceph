@@ -208,16 +208,19 @@ func (ceph *Ceph) GetCephDaemonMetrics(mts []plugin.MetricType, daemon string) (
 	return metrics, nil
 }
 
+// matchSlice matches 2 slices with asterisk support
 func matchSlice(a, b []string) bool {
-	match := true
+	if len(a) != len(b) {
+		return false
+	}
 
 	for i := range a {
 		if a[i] != b[i] && a[i] != "*" && b[i] != "*" {
-			match = false
+			return false
 		}
 	}
 
-	return match
+	return true
 }
 
 func (ceph *Ceph) getJSONDataByNamespace(data map[string]interface{}, namespace []string, resultNamespace []string, results *map[string]interface{}) {
@@ -227,12 +230,12 @@ func (ceph *Ceph) getJSONDataByNamespace(data map[string]interface{}, namespace 
 		// Convert ceph key to namespace slice for comparsion
 		keyNs := strings.Split(key, ".")
 
-		if matchSlice(namespace[0:len(keyNs)], keyNs) {
+		if matchSlice(namespace[:len(keyNs)], keyNs) {
 			if reflect.ValueOf(data[key]).Kind() == reflect.Map {
 				// Go deeper into JSON structure
 				ceph.getJSONDataByNamespace(data[key].(map[string]interface{}), namespace[len(keyNs):], append(resultNamespace, keyNs...), results)
 			} else {
-				(*results)[strings.Join(resultNamespace, "/")] = data[key]
+				(*results)[strings.Join(resultNamespace, "/")+"/"+key] = data[key]
 			}
 		}
 	}
@@ -240,7 +243,6 @@ func (ceph *Ceph) getJSONDataByNamespace(data map[string]interface{}, namespace 
 
 // CollectMetrics returns all desired Ceph metrics defined in task manifest
 func (ceph *Ceph) CollectMetrics(mts []plugin.MetricType) ([]plugin.MetricType, error) {
-
 	if len(mts) <= 0 {
 		return nil, errors.New("No metrics defined to collect")
 	}
