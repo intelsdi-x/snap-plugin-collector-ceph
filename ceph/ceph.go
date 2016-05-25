@@ -158,7 +158,6 @@ func (ceph *Ceph) GetCephDaemonMetrics(mts []plugin.MetricType, daemon string) (
 	out, err := cmd.perfDump(filepath.Join(ceph.path, "ceph"), "--admin-daemon", filepath.Join(ceph.socket.path, daemon),
 		"perf", "dump")
 	timestamp := time.Now()
-	hostname, _ := os.Hostname()
 
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Ceph perf dump command execution failed for socket %+v, err=%+v\n",
@@ -194,9 +193,11 @@ func (ceph *Ceph) GetCephDaemonMetrics(mts []plugin.MetricType, daemon string) (
 				metric := plugin.MetricType{
 					Namespace_: core.NewNamespace(m.Namespace().Strings()[:daemonIDIndex]...).AddStaticElement(daemonID).AddStaticElements(strings.Split(ns, "/")...),
 					Data_:      data, // get value of metric
-					Tags_:      map[string]string{core.STD_TAG_PLUGIN_RUNNING_ON: hostname + "/" + daemonName + "." + daemonID},
+					Tags_:      map[string]string{"daemon_source": daemonName + "." + daemonID},
 					Timestamp_: timestamp,
 				}
+
+				assignMetricMeta(&metric, allMetrics)
 
 				metrics = append(metrics, metric)
 			}
@@ -269,7 +270,7 @@ func (ceph *Ceph) CollectMetrics(mts []plugin.MetricType) ([]plugin.MetricType, 
 func (ceph *Ceph) GetMetricTypes(cfg plugin.ConfigType) ([]plugin.MetricType, error) {
 	mts := []plugin.MetricType{}
 	for _, metricMeta := range allMetrics {
-		mts = append(mts, plugin.MetricType{Namespace_: createNamespace(metricMeta.ns)})
+		mts = append(mts, plugin.MetricType{Namespace_: createNamespace(metricMeta.ns), Description_: metricMeta.description})
 	}
 
 	return mts, nil
@@ -421,10 +422,8 @@ func trimPrefixAndSuffix(s string, prefix string, suffix string) string {
 // assignMetricMeta assigs metadata to metric using predefined metadata slice
 func assignMetricMeta(mt *plugin.MetricType, allMetrics []metric) {
 	for _, metricMeta := range allMetrics {
-		fmt.Println("Match ", metricMeta.ns, "with", mt.Namespace().String())
 		if matchSlice(strings.Split(metricMeta.ns, "/"), strings.Split(mt.Namespace().String(), "/")) {
 			mt.Description_ = metricMeta.description
-			mt.Unit_ = metricMeta.unit
 			break
 		}
 	}
