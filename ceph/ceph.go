@@ -51,11 +51,14 @@ const (
 	daemonIDIndex   = 4
 
 	// Default path to ceph executable
-	cephBinPathDefault = "/usr/bin/ceph"
+	//cephBinPathDefault = "/usr/bin/ceph"
+	cephBinPathDefault = "/home/mkleina/ceph/src"
 
 	// Default Ceph's socket config
-	socketPathDefault   = "/var/run/ceph"
-	socketPrefixDefault = "ceph-"
+	//socketPathDefault   = "/var/run/ceph"
+	socketPathDefault = "/home/mkleina/ceph/src/out"
+	//socketPrefixDefault = "ceph-"
+	socketPrefixDefault = ""
 	socketExtDefault    = "asok"
 )
 
@@ -180,7 +183,7 @@ func (ceph *Ceph) GetCephDaemonMetrics(mts []plugin.MetricType, daemon string) (
 		// Get metrics defined in task for this daemon
 		if matchSlice(m.Namespace().Strings()[daemonNameIndex:daemonIDIndex+1], daemonNameSplit) {
 			daemonMetrics := make(map[string]interface{})
-			ceph.getJSONDataByNamespace(jsonData, m.Namespace().Strings()[daemonIDIndex+1:], []string{}, &daemonMetrics)
+			ceph.getJSONDataByNamespace(jsonData, m.Namespace().Strings()[daemonIDIndex+1:], []string{}, daemonMetrics)
 
 			// No metrics found for desired namespace
 			if len(daemonMetrics) == 0 {
@@ -223,7 +226,7 @@ func matchSlice(a, b []string) bool {
 	return true
 }
 
-func (ceph *Ceph) getJSONDataByNamespace(data map[string]interface{}, namespace []string, resultNamespace []string, results *map[string]interface{}) {
+func (ceph *Ceph) getJSONDataByNamespace(data map[string]interface{}, namespace []string, resultNamespace []string, results map[string]interface{}) {
 	// Go through all JSON data keys
 	for key, _ := range data {
 
@@ -235,7 +238,7 @@ func (ceph *Ceph) getJSONDataByNamespace(data map[string]interface{}, namespace 
 				// Go deeper into JSON structure
 				ceph.getJSONDataByNamespace(data[key].(map[string]interface{}), namespace[len(keyNs):], append(resultNamespace, keyNs...), results)
 			} else {
-				(*results)[strings.Join(resultNamespace, "/")+"/"+key] = data[key]
+				results[strings.Join(resultNamespace, "/")+"/"+key] = data[key]
 			}
 		}
 	}
@@ -264,14 +267,9 @@ func (ceph *Ceph) CollectMetrics(mts []plugin.MetricType) ([]plugin.MetricType, 
 
 // GetMetricTypes returns the metric types exposed by ceph-daemon sockets
 func (ceph *Ceph) GetMetricTypes(cfg plugin.ConfigType) ([]plugin.MetricType, error) {
-	// init ceph plugin with Global Config params
-	if err := ceph.Init(cfg.Table()); err != nil {
-		return nil, err
-	}
-
 	mts := []plugin.MetricType{}
-	for _, k := range ceph.keys {
-		mts = append(mts, plugin.MetricType{Namespace_: k})
+	for _, metricMeta := range allMetrics {
+		mts = append(mts, plugin.MetricType{Namespace_: createNamespace(metricMeta.ns)})
 	}
 
 	return mts, nil
@@ -333,18 +331,15 @@ func getCephSocketConf(config map[string]ctypes.ConfigValue) Socket {
 }
 
 // createNamespace returns namespace slice of strings composed from: vendor, class, type, ceph daemon name and ceph daemon id
-func createNamespace(cephNs string) core.Namespace {
-	result := core.NewNamespace([]string{ns_vendor, ns_class, ns_type}...)
-	cephNsSplit := strings.Split(cephNs, "/")
+func createNamespace(ns string) core.Namespace {
+	result := core.NewNamespace()
+	nsSplit := strings.Split(strings.TrimPrefix(ns, "/"), "/")
 
-	for _, cephNsEntry := range cephNsSplit {
-		// Split metric name into static element before dot and dynamic elements after
-		idSplit := strings.Split(cephNsEntry, ".")
-		staticElement := idSplit[0]
-
-		result = result.AddStaticElement(staticElement)
-		for _, dynamicElement := range idSplit[1:] {
-			result = result.AddDynamicElement(dynamicElement, "ID of "+staticElement)
+	for i, nsEntry := range nsSplit {
+		if nsEntry == "*" {
+			result = result.AddDynamicElement(nsSplit[i-1]+"_id", "ID of "+nsSplit[i-1])
+		} else {
+			result = result.AddStaticElement(nsEntry)
 		}
 	}
 	return result
@@ -421,4 +416,16 @@ func trimPrefixAndSuffix(s string, prefix string, suffix string) string {
 	s = strings.TrimPrefix(s, prefix)
 	s = strings.TrimSuffix(s, suffix)
 	return s
+}
+
+// assignMetricMeta assigs metadata to metric using predefined metadata slice
+func assignMetricMeta(mt *plugin.MetricType, allMetrics []metric) {
+	for _, metricMeta := range allMetrics {
+		fmt.Println("Match ", metricMeta.ns, "with", mt.Namespace().String())
+		if matchSlice(strings.Split(metricMeta.ns, "/"), strings.Split(mt.Namespace().String(), "/")) {
+			mt.Description_ = metricMeta.description
+			mt.Unit_ = metricMeta.unit
+			break
+		}
+	}
 }
