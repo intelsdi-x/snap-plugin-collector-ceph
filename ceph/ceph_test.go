@@ -400,6 +400,7 @@ func Test_parsePerfDumpOut(t *testing.T) {
 
 func Test_getCephBinaryPath(t *testing.T) {
 	path := "/path/to/ceph/bin"
+	ceph := New()
 
 	Convey("path Ceph executable in Snap Global Config", t, func() {
 		cmd = &TestCmd{}
@@ -411,34 +412,38 @@ func Test_getCephBinaryPath(t *testing.T) {
 		So(result, ShouldEqual, path)
 	})
 
-	Convey("looking for Ceph executable in $PATH with no error", t, func() {
-		cfg := plugin.NewPluginConfigType()
-		cmd = &TestCmd{look_path: path}
-		So(func() { getCephBinaryPath(cfg.Table()) }, ShouldNotPanic)
-		result := getCephBinaryPath(cfg.Table())
-		So(result, ShouldEqual, path)
-	})
+	Convey("looking for Ceph executable default path", t, func() {
+		cp, _ := ceph.GetConfigPolicy()
+		cfgRules := cp.Get([]string{"intel", "storage", "ceph"}).RulesAsTable()
 
-	Convey("looking for Ceph executable in $PATH with error", t, func() {
-		cfg := plugin.NewPluginConfigType()
-		cmd = &TestCmd{look_path: path, look_err: errors.New("error")}
-		So(func() { getCephBinaryPath(cfg.Table()) }, ShouldNotPanic)
-		result := getCephBinaryPath(cfg.Table())
-		// getting default path to ceph executable
-		So(result, ShouldEqual, cephBinPathDefault)
+		for i := range cfgRules {
+			switch cfgRules[i].Name {
+			case "path":
+				So(cfgRules[i].Default.(*ctypes.ConfigValueStr).Value, ShouldEqual, cephBinPathDefault)
+			}
+		}
 	})
 }
 
 func Test_getSocketConf(t *testing.T) {
-	Convey("defaults Ceph socket details", t, func() {
-		cmd = &TestCmd{}
-		cfg := plugin.NewPluginConfigType()
+	ceph := New()
 
-		So(func() { getCephSocketConf(cfg.Table()) }, ShouldNotPanic)
-		result := getCephSocketConf(cfg.Table())
-		So(result.path, ShouldEqual, socketPathDefault)
-		So(result.prefix, ShouldEqual, socketPrefixDefault)
-		So(result.ext, ShouldEqual, socketExtDefault)
+	Convey("check Ceph socket default config", t, func() {
+		cmd = &TestCmd{}
+
+		cp, _ := ceph.GetConfigPolicy()
+		cfgRules := cp.Get([]string{"intel", "storage", "ceph"}).RulesAsTable()
+
+		for i := range cfgRules {
+			switch cfgRules[i].Name {
+			case "socket_path":
+				So(cfgRules[i].Default.(*ctypes.ConfigValueStr).Value, ShouldEqual, socketPathDefault)
+			case "socket_prefix":
+				So(cfgRules[i].Default.(*ctypes.ConfigValueStr).Value, ShouldEqual, socketPrefixDefault)
+			case "socket_ext":
+				So(cfgRules[i].Default.(*ctypes.ConfigValueStr).Value, ShouldEqual, socketExtDefault)
+			}
+		}
 	})
 
 	Convey("customize Ceph socket conf in Snap Global Conf", t, func() {

@@ -51,14 +51,11 @@ const (
 	daemonIDIndex   = 4
 
 	// Default path to ceph executable
-	//cephBinPathDefault = "/usr/bin/ceph"
-	cephBinPathDefault = "/home/mkleina/ceph/src"
+	cephBinPathDefault = "/usr/bin/ceph"
 
 	// Default Ceph's socket config
-	//socketPathDefault   = "/var/run/ceph"
-	socketPathDefault = "/home/mkleina/ceph/src/out"
-	//socketPrefixDefault = "ceph-"
-	socketPrefixDefault = ""
+	socketPathDefault   = "/var/run/ceph"
+	socketPrefixDefault = "ceph-"
 	socketExtDefault    = "asok"
 )
 
@@ -240,9 +237,18 @@ func (ceph *Ceph) GetMetricTypes(cfg plugin.ConfigType) ([]plugin.MetricType, er
 
 // GetConfigPolicy returns a ConfigPolicy
 func (ceph *Ceph) GetConfigPolicy() (*cpolicy.ConfigPolicy, error) {
-	p := cpolicy.New()
-
-	return p, nil
+	c := cpolicy.New()
+	socketPath, _ := cpolicy.NewStringRule("socket_path", false, socketPathDefault)
+	socketPrefix, _ := cpolicy.NewStringRule("socket_prefix", false, socketPrefixDefault)
+	socketExt, _ := cpolicy.NewStringRule("socket_ext", false, socketExtDefault)
+	path, _ := cpolicy.NewStringRule("path", false, cephBinPathDefault)
+	p := cpolicy.NewPolicyNode()
+	p.Add(socketPath)
+	p.Add(socketPrefix)
+	p.Add(socketExt)
+	p.Add(path)
+	c.Add([]string{"intel", "storage", "ceph"}, p)
+	return c, nil
 }
 
 // getCephBinaryPath returns path to ceph executable
@@ -252,13 +258,7 @@ func getCephBinaryPath(config map[string]ctypes.ConfigValue) string {
 		return path.(ctypes.ConfigValueStr).Value
 	}
 
-	// check PATH environment variable
-	if path, err := cmd.lookPath("ceph"); err == nil {
-		//command "LookPath" resolves the path to a complete name, so the "ceph" suffix needs to be trimmed
-		return strings.TrimSuffix(path, "/ceph")
-	}
-
-	return cephBinPathDefault
+	return ""
 }
 
 // getCephSocketConf returns path to folder contains daemon-sockets, prefix and extension of socket's name
@@ -268,8 +268,6 @@ func getCephSocketConf(config map[string]ctypes.ConfigValue) Socket {
 	// set path to socket, defaults to "/var/run/ceph"
 	if path, ok := config["socket_path"]; ok {
 		s.path = path.(ctypes.ConfigValueStr).Value
-	} else {
-		s.path = socketPathDefault
 	}
 
 	// set socket prefix, defaults to "ceph-"
@@ -279,15 +277,11 @@ func getCephSocketConf(config map[string]ctypes.ConfigValue) Socket {
 		if strings.ToLower(s.prefix) == "none" {
 			s.prefix = ""
 		}
-	} else {
-		s.prefix = socketPrefixDefault
 	}
 
 	// set socket extension, defaults to "asok"
 	if ext, ok := config["socket_ext"]; ok {
 		s.ext = ext.(ctypes.ConfigValueStr).Value
-	} else {
-		s.ext = socketExtDefault
 	}
 
 	return s
