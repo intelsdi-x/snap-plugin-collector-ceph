@@ -65,7 +65,6 @@ const (
 // Ceph
 type Ceph struct {
 	path        string // path to ceph executable
-	keys        []core.Namespace
 	daemons     []string
 	socket      Socket
 	initialized bool // after init() plugin with Config set true to avoid reinitalization
@@ -110,43 +109,6 @@ func (ceph *Ceph) Init(config map[string]ctypes.ConfigValue) error {
 	ceph.daemons = ceph.socket.getCephDaemonNames()
 	if len(ceph.daemons) <= 0 {
 		return fmt.Errorf("Can not get Ceph Daemon Name(s) - check if any Ceph Daemon is running")
-	}
-
-	dkeys := make(map[string][]string)
-
-	for _, daemon := range ceph.daemons {
-		socket := filepath.Join(ceph.socket.path, daemon)
-
-		// perf dump command is `/path/to/ceph/bin --admin-daemon /path/to/exemplary/socket/osd.0.asok perf dump`
-		out, err := cmd.perfDump(filepath.Join(ceph.path, "ceph"), "--admin-daemon", socket, "perf", "dump")
-
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "Error execution of ceph-daemon perf dump command for socket %+v, err=%+v\n",
-				socket, err)
-			return err
-		}
-
-		if keys, err := parsePerfDumpOut(out); err == nil {
-			dkeys[daemon] = keys
-		} else {
-			fmt.Fprintf(os.Stderr, "Error parsing output of ceph-daemon perf dump command for socket %+v, err=%+v\n",
-				socket, err)
-		}
-
-	}
-
-	if len(dkeys) == 0 {
-		return fmt.Errorf("No Ceph metrics available")
-	}
-
-	ceph.keys = []core.Namespace{}
-
-	for _, daemon := range ceph.daemons {
-		for _, key := range dkeys[daemon] {
-			daemonName := trimPrefixAndSuffix(daemon, ceph.socket.prefix, "."+ceph.socket.ext)
-			cephNs := daemonName + key
-			ceph.keys = append(ceph.keys, createNamespace(cephNs))
-		}
 	}
 
 	ceph.initialized = true

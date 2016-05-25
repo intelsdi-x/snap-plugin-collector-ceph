@@ -21,10 +21,8 @@ package ceph
 
 import (
 	"errors"
-	"fmt"
 	"os"
 	"strings"
-	//	"strings"
 	"testing"
 
 	"github.com/intelsdi-x/snap/control/plugin"
@@ -341,43 +339,6 @@ func TestGetMetricTypes(t *testing.T) {
 		So(err, ShouldBeNil)
 	})
 
-	Convey("getting metric namespace with error - perf dump output is not valid", t, func() {
-		ceph := &Ceph{}
-		cmd = &TestCmd{out: mockOutInvalid}
-		So(func() { ceph.GetMetricTypes(cfg) }, ShouldNotPanic)
-		result, err := ceph.GetMetricTypes(cfg)
-		So(result, ShouldBeEmpty)
-		So(err, ShouldNotBeNil)
-	})
-
-	Convey("getting metric namespace with error - perf dump execution error", t, func() {
-		ceph := &Ceph{}
-		cmd = &TestCmd{err: errors.New("execution error")}
-		So(func() { ceph.GetMetricTypes(cfg) }, ShouldNotPanic)
-		result, err := ceph.GetMetricTypes(cfg)
-		So(result, ShouldBeEmpty)
-		So(err, ShouldNotBeNil)
-	})
-
-	Convey("getting metric namespace with error - perf dump output is empty", t, func() {
-		ceph := &Ceph{}
-		moi := []byte(fmt.Sprintf("\n\n\n\n"))
-		cmd = &TestCmd{out: moi}
-		So(func() { ceph.GetMetricTypes(cfg) }, ShouldNotPanic)
-		result, err := ceph.GetMetricTypes(cfg)
-		So(result, ShouldBeEmpty)
-		So(err, ShouldNotBeNil)
-	})
-
-	Convey("getting metric namespace with error - none perf dump output", t, func() {
-		ceph := &Ceph{}
-		cmd = &TestCmd{}
-		So(func() { ceph.GetMetricTypes(cfg) }, ShouldNotPanic)
-		result, err := ceph.GetMetricTypes(cfg)
-		So(result, ShouldBeEmpty)
-		So(err, ShouldNotBeNil)
-	})
-
 	Convey("invalid path to ceph-daemon sockets", t, func() {
 		ceph := &Ceph{}
 		cmd = &TestCmd{out: mockOut}
@@ -385,7 +346,7 @@ func TestGetMetricTypes(t *testing.T) {
 		cfg_invalid.AddItem("socket_path", ctypes.ConfigValueStr{Value: "./test_invalid"})
 		cfg_invalid.AddItem("socket_prefix", ctypes.ConfigValueStr{Value: "ceph-"})
 		cfg_invalid.AddItem("socket_ext", ctypes.ConfigValueStr{Value: "asok"})
-		So(func() { ceph.GetMetricTypes(cfg_invalid) }, ShouldPanic)
+		So(func() { ceph.Init(cfg_invalid.Table()) }, ShouldPanic)
 	})
 
 	Convey("no ceph-daemon sockets available with set prefix", t, func() {
@@ -394,9 +355,8 @@ func TestGetMetricTypes(t *testing.T) {
 		cfg_inv_prefix := plugin.NewPluginConfigType()
 		cfg_inv_prefix.AddItem("socket_path", ctypes.ConfigValueStr{Value: "./test"})
 		cfg_inv_prefix.AddItem("socket_prefix", ctypes.ConfigValueStr{Value: "ceph_inv-"})
-		So(func() { ceph.GetMetricTypes(cfg_inv_prefix) }, ShouldNotPanic)
-		result, err := ceph.GetMetricTypes(cfg_inv_prefix)
-		So(result, ShouldBeNil)
+		So(func() { ceph.Init(cfg_inv_prefix.Table()) }, ShouldNotPanic)
+		err := ceph.Init(cfg_inv_prefix.Table())
 		So(err, ShouldNotBeNil)
 	})
 
@@ -406,9 +366,8 @@ func TestGetMetricTypes(t *testing.T) {
 		cfg_inv_ext := plugin.NewPluginConfigType()
 		cfg_inv_ext.AddItem("socket_path", ctypes.ConfigValueStr{Value: "./test"})
 		cfg_inv_ext.AddItem("socket_ext", ctypes.ConfigValueStr{Value: "asok_inv"})
-		So(func() { ceph.GetMetricTypes(cfg_inv_ext) }, ShouldNotPanic)
-		result, err := ceph.GetMetricTypes(cfg_inv_ext)
-		So(result, ShouldBeNil)
+		So(func() { ceph.Init(cfg_inv_ext.Table()) }, ShouldNotPanic)
+		err := ceph.Init(cfg_inv_ext.Table())
 		So(err, ShouldNotBeNil)
 	})
 
