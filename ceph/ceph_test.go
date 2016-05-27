@@ -477,18 +477,25 @@ func Test_CollectMetrics(t *testing.T) {
 	// folder for mocked ceph socket, empty in the beginning
 	os.Mkdir("test", os.ModePerm)
 
+	// Test data
+	config := cdata.NewNode()
 	mts := []plugin.MetricType{
 		plugin.MetricType{
-			Namespace_: core.NewNamespace("intel", "storage", "ceph", "osd", "2", "a", "aa"),
+			Namespace_: core.NewNamespace("intel", "storage", "ceph", "osd", "2", "a", "aa"), Config_: config,
 		},
 		plugin.MetricType{
-			Namespace_: core.NewNamespace("intel", "storage", "ceph", "osd", "3", "c", "cb", "cba"),
+			Namespace_: core.NewNamespace("intel", "storage", "ceph", "osd", "3", "c", "cb", "cba"), Config_: config,
 		},
 	}
-
-	config := cdata.NewNode()
-	for i, _ := range mts {
-		mts[i].Config_ = config
+	mtsDynamic := []plugin.MetricType{
+		plugin.MetricType{
+			Namespace_: core.NewNamespace("intel", "storage", "ceph", "osd", "*", "a", "aa"), Config_: config,
+		},
+	}
+	mtsDynamicErr := []plugin.MetricType{
+		plugin.MetricType{
+			Namespace_: core.NewNamespace("intel", "storage", "ceph", "osd", "*", "mnopqrst", "aabbcc"), Config_: config,
+		},
 	}
 
 	// set ceph socket conf value
@@ -543,9 +550,6 @@ func Test_CollectMetrics(t *testing.T) {
 		So(func() { ceph.CollectMetrics(mts) }, ShouldNotPanic)
 		result, err := ceph.CollectMetrics(mts)
 
-		//for _, res := range result {
-		//	log.Println(res.Namespace().String())
-		//}
 		So(len(result), ShouldEqual, len(mts))
 
 		for _, r := range result {
@@ -553,7 +557,51 @@ func Test_CollectMetrics(t *testing.T) {
 		}
 		So(err, ShouldBeNil)
 	})
-	os.RemoveAll("test/")
+
+	Convey("collect dynamic metrics with no errors", t, func() {
+		ceph := &Ceph{}
+		cmd = &TestCmd{out: mockOut}
+		So(func() { ceph.CollectMetrics(mtsDynamic) }, ShouldNotPanic)
+		result, err := ceph.CollectMetrics(mtsDynamic)
+
+		So(len(result), ShouldEqual, 4)
+
+		for _, r := range result {
+			So(r.Data(), ShouldEqual, 1)
+		}
+		So(err, ShouldBeNil)
+	})
+
+	Convey("collect dynamic metrics for not existing metric", t, func() {
+		ceph := &Ceph{}
+		cmd = &TestCmd{out: mockOut}
+		So(func() { ceph.CollectMetrics(mtsDynamicErr) }, ShouldNotPanic)
+		result, err := ceph.CollectMetrics(mtsDynamicErr)
+
+		So(len(result), ShouldEqual, 4)
+
+		for _, r := range result {
+			So(r.Data(), ShouldBeNil)
+		}
+		So(err, ShouldBeNil)
+	})
+
+	os.Remove("test/osd.0.asok")
+	os.Remove("test/osd.1.asok")
+	os.Remove("test/osd.2.asok")
+	os.Remove("test/osd.3.asok")
+
+	Convey("collect dynamic metrics with no daemons available", t, func() {
+		ceph := &Ceph{}
+		cmd = &TestCmd{out: mockOut}
+		So(func() { ceph.CollectMetrics(mtsDynamic) }, ShouldNotPanic)
+		result, err := ceph.CollectMetrics(mtsDynamic)
+
+		So(result, ShouldBeEmpty)
+		So(err, ShouldNotBeNil)
+	})
+
+	os.Remove("test/")
 }
 
 func Test_New(t *testing.T) {
