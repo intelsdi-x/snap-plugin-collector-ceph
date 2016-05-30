@@ -32,7 +32,7 @@ import (
 // meta data about plugin
 const (
 	name       = "ceph"
-	version    = 3
+	version    = 4
 	pluginType = plugin.CollectorPluginType
 )
 

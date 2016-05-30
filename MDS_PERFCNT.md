@@ -22,7 +22,7 @@ limitations under the License.
 
 # Ceph MDS Perf Counters
 
-Prefix: /intel/storage/ceph/{mds_daemon_name}/
+Prefix: /intel/storage/ceph/{mds_daemon_name}/{mds_daemon_id}
 
 Metrics | Description
 ------------ | -------------
@@ -57,7 +57,7 @@ mds/exported | Exports
 mds/exported_inodes | Exported inodes
 mds/imported | Imports
 mds/imported_inodes | Imported inodes
- | 
+ |
 mds_cache/num_strays | Stray dentries
 mds_cache/num_strays_purging | Stray dentries purging
 mds_cache/num_strays_delayed | Stray dentries delayed
@@ -71,7 +71,7 @@ mds_cache/num_recovering_enqueued | Files waiting for recovery
 mds_cache/num_recovering_prioritized | Files waiting for recovery with elevated priority
 mds_cache/recovery_started | File recoveries started
 mds_cache/recovery_completed | File recoveries completed
- | 
+ |
 mds_log/evadd | Events submitted
 mds_log/evex | Total expired events
 mds_log/evtrm | Trimmed events
@@ -88,7 +88,7 @@ mds_log/expos | Journaler xpire position
 mds_log/wrpos | Journaler  write position
 mds_log/rdpos | Journaler  read position
 mds_log/jlat | Journaler flush latency
- | 
+ |
 mds_mem/ino | Inodes
 mds_mem/ino+ | Inodes opened
 mds_mem/ino- | Inodes closed
@@ -105,13 +105,13 @@ mds_mem/rss | RSS
 mds_mem/heap | Heap size
 mds_mem/malloc | Malloc size
 mds_mem/buf | Buffer size
- | 
+ |
 mds_server/handle_client_request | Client requests
 mds_server/handle_slave_request | Slave requests
 mds_server/handle_client_session | Client session messages
 mds_server/dispatch_client_request | Client requests dispatched
 mds_server/dispatch_server_request | Server requests dispatched
- | 
+ |
 objecter/op_active | Operations active
 objecter/op_laggy | Laggy operations
 objecter/op_send | Sent operations
@@ -177,7 +177,7 @@ objecter/osd_laggy | Laggy OSD sessions
 objecter/omap_wr | OSD OMAP write operations
 objecter/omap_rd | OSD OMAP read operations
 objecter/omap_del | OSD OMAP delete operations
- | 
+ |
 throttle-msgr_dispatch_throttler-mds/val | Currently available throttle
 throttle-msgr_dispatch_throttler-mds/max | Max value for throttle
 throttle-msgr_dispatch_throttler-mds/get | Gets
@@ -190,7 +190,7 @@ throttle-msgr_dispatch_throttler-mds/put | Puts
 throttle-msgr_dispatch_throttler-mds/put_sum | Put data
 throttle-msgr_dispatch_throttler-mds/wait/avgcount | Waiting latency
 throttle-msgr_dispatch_throttler-mds/wait/sum | Waiting latency
- | 
+ |
 throttle-objecter_bytes/val | Currently available throttle
 throttle-objecter_bytes/max | Max value for throttle
 throttle-objecter_bytes/get | Gets
@@ -203,7 +203,7 @@ throttle-objecter_bytes/put | Puts
 throttle-objecter_bytes/put_sum | Put data
 throttle-objecter_bytes/wait/avgcount | Waiting latency
 throttle-objecter_bytes/wait/sum | Waiting latency
- | 
+ |
 throttle-objecter_ops/val | Currently available throttle
 throttle-objecter_ops/max | Max value for throttle
 throttle-objecter_ops/get | Gets

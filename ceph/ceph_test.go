@@ -21,12 +21,12 @@ package ceph
 
 import (
 	"errors"
-	"fmt"
 	"os"
-	//	"strings"
+	"strings"
 	"testing"
 
 	"github.com/intelsdi-x/snap/control/plugin"
+	"github.com/intelsdi-x/snap/core"
 	"github.com/intelsdi-x/snap/core/cdata"
 	"github.com/intelsdi-x/snap/core/ctypes"
 	. "github.com/smartystreets/goconvey/convey"
@@ -47,8 +47,8 @@ var mockOut = []byte(`{
 					"cba": 22,
 					"cbb": 22.2
 				},
-				"cc": 3 
-			} 
+				"cc": 3
+			}
 		}`)
 
 var mockOutInvalid = []byte(`{
@@ -174,33 +174,33 @@ func Test_getCephDaemonNames(t *testing.T) {
 
 }
 
-func createMockMetrics(count uint64, hostname string) []plugin.PluginMetricType {
-	metrics := make([]plugin.PluginMetricType, count)
+func createMockMetrics(count uint64, hostname string) []plugin.MetricType {
+	metrics := make([]plugin.MetricType, count)
 	for i, _ := range metrics {
 
-		metrics[i] = plugin.PluginMetricType{
-			Namespace_: []string{"test", "metric", "namespace"},
+		metrics[i] = plugin.MetricType{
+			Namespace_: core.NewNamespace("test", "metric", "namespace"),
 			Data_:      1.01 + float32(i),
-			Source_:    hostname,
+			Tags_:      map[string]string{"source": hostname},
 		}
 	}
 
 	return metrics
 }
 
-func checkMetricsResemblance(metrics []plugin.PluginMetricType, metricsMock []plugin.PluginMetricType) {
+func checkMetricsResemblance(metrics []plugin.MetricType, metricsMock []plugin.MetricType) {
 	for i, mock := range metricsMock {
 		So(metrics[i].Namespace(), ShouldResemble, mock.Namespace())
-		So(metrics[i].Source(), ShouldEqual, mock.Source())
+		So(metrics[i].Tags(), ShouldResemble, mock.Tags())
 		So(metrics[i].Data(), ShouldEqual, mock.Data())
 	}
 }
 
 // desiredMtsCnt returns number of desired metrics to collect from specific daemon
-func desiredMtsCnt(daemonName string, metrics []plugin.PluginMetricType) int {
+func desiredMtsCnt(daemonName string, metrics []plugin.MetricType) int {
 	cnt := 0
 	for _, m := range metrics {
-		if m.Namespace()[daemonNameIndex] == daemonName {
+		if strings.Join([]string{m.Namespace()[daemonNameIndex].Value, m.Namespace()[daemonIDIndex].Value}, ".") == daemonName {
 			cnt++
 		}
 	}
@@ -208,28 +208,28 @@ func desiredMtsCnt(daemonName string, metrics []plugin.PluginMetricType) int {
 	return cnt
 }
 
-func Test_getCephDaemonMetrics(t *testing.T) {
-	mts := []plugin.PluginMetricType{
-		plugin.PluginMetricType{
-			Namespace_: []string{"intel", "storage", "ceph", "mds.a", "a", "aa"},
+func Test_GetCephDaemonMetrics(t *testing.T) {
+	mts := []plugin.MetricType{
+		plugin.MetricType{
+			Namespace_: core.NewNamespace("intel", "storage", "ceph", "mds", "a", "a", "aa"),
 		},
-		plugin.PluginMetricType{
-			Namespace_: []string{"intel", "storage", "ceph", "mds.a", "b", "ba"},
+		plugin.MetricType{
+			Namespace_: core.NewNamespace("intel", "storage", "ceph", "mds", "a", "b", "ba"),
 		},
-		plugin.PluginMetricType{
-			Namespace_: []string{"intel", "storage", "ceph", "mds.a", "c", "cb", "cba"},
+		plugin.MetricType{
+			Namespace_: core.NewNamespace("intel", "storage", "ceph", "mds", "a", "c", "cb", "cba"),
 		},
-		plugin.PluginMetricType{
-			Namespace_: []string{"intel", "storage", "ceph", "mds.a", "c", "cb", "cbb"},
+		plugin.MetricType{
+			Namespace_: core.NewNamespace("intel", "storage", "ceph", "mds", "a", "c", "cb", "cbb"),
 		},
-		plugin.PluginMetricType{
-			Namespace_: []string{"intel", "storage", "ceph", "mds.b", "a", "aa"},
+		plugin.MetricType{
+			Namespace_: core.NewNamespace("intel", "storage", "ceph", "mds", "b", "a", "aa"),
 		},
-		plugin.PluginMetricType{
-			Namespace_: []string{"intel", "storage", "ceph", "mds.b", "a", "cc"},
+		plugin.MetricType{
+			Namespace_: core.NewNamespace("intel", "storage", "ceph", "mds", "b", "a", "cc"),
 		},
-		plugin.PluginMetricType{
-			Namespace_: []string{"intel", "storage", "ceph", "mds.c", "no", "nono"},
+		plugin.MetricType{
+			Namespace_: core.NewNamespace("intel", "storage", "ceph", "mds", "c", "no", "nono"),
 		},
 	}
 
@@ -238,16 +238,16 @@ func Test_getCephDaemonMetrics(t *testing.T) {
 	Convey("invalid getting metrics, perf dump command execution error", t, func() {
 		cmd = &TestCmd{err: errors.New("exit status 1")}
 
-		So(func() { testCeph.getCephDaemonMetrics(mts, "mds.a") }, ShouldNotPanic)
-		result, err := testCeph.getCephDaemonMetrics(mts, "mds.a")
+		So(func() { testCeph.GetCephDaemonMetrics(mts, "mds.a") }, ShouldNotPanic)
+		result, err := testCeph.GetCephDaemonMetrics(mts, "mds.a")
 		So(result, ShouldBeEmpty)
 		So(err, ShouldNotBeNil)
 	})
 
 	Convey("invalid getting metrics, empty perf dump output", t, func() {
 		cmd = &TestCmd{}
-		So(func() { testCeph.getCephDaemonMetrics(mts, "mds.a") }, ShouldNotPanic)
-		result, err := testCeph.getCephDaemonMetrics(mts, "mds.a")
+		So(func() { testCeph.GetCephDaemonMetrics(mts, "mds.a") }, ShouldNotPanic)
+		result, err := testCeph.GetCephDaemonMetrics(mts, "mds.a")
 		So(result, ShouldBeEmpty)
 		So(err, ShouldNotBeNil)
 	})
@@ -256,8 +256,8 @@ func Test_getCephDaemonMetrics(t *testing.T) {
 		//first mock in mockInUnmarshal is correct
 		cmd = &TestCmd{out: mockInUnmarshal[0]}
 		dName := "mds.a"
-		So(func() { testCeph.getCephDaemonMetrics(mts, dName) }, ShouldNotPanic)
-		result, err := testCeph.getCephDaemonMetrics(mts, dName)
+		So(func() { testCeph.GetCephDaemonMetrics(mts, dName) }, ShouldNotPanic)
+		result, err := testCeph.GetCephDaemonMetrics(mts, dName)
 		So(result, ShouldNotBeEmpty)
 		So(err, ShouldBeNil)
 	})
@@ -266,8 +266,8 @@ func Test_getCephDaemonMetrics(t *testing.T) {
 		for _, moi := range mockInUnmarshal[1:] {
 			cmd = &TestCmd{out: moi}
 			dName := "mds.a"
-			So(func() { testCeph.getCephDaemonMetrics(mts, dName) }, ShouldNotPanic)
-			result, err := testCeph.getCephDaemonMetrics(mts, dName)
+			So(func() { testCeph.GetCephDaemonMetrics(mts, dName) }, ShouldNotPanic)
+			result, err := testCeph.GetCephDaemonMetrics(mts, dName)
 			So(result, ShouldBeEmpty)
 			So(err, ShouldNotBeNil)
 		}
@@ -276,8 +276,8 @@ func Test_getCephDaemonMetrics(t *testing.T) {
 	Convey("no defined desired metrics for daemon", t, func() {
 		cmd = &TestCmd{out: mockOut}
 		dName := "mds.d"
-		So(func() { testCeph.getCephDaemonMetrics(mts, dName) }, ShouldNotPanic)
-		result, err := testCeph.getCephDaemonMetrics(mts, dName)
+		So(func() { testCeph.GetCephDaemonMetrics(mts, dName) }, ShouldNotPanic)
+		result, err := testCeph.GetCephDaemonMetrics(mts, dName)
 		So(result, ShouldBeEmpty)
 		So(err, ShouldNotBeNil)
 	})
@@ -285,8 +285,8 @@ func Test_getCephDaemonMetrics(t *testing.T) {
 	Convey("no available desired metrics for daemon", t, func() {
 		cmd = &TestCmd{out: mockOut}
 		dName := "mds.c"
-		So(func() { testCeph.getCephDaemonMetrics(mts, dName) }, ShouldNotPanic)
-		result, err := testCeph.getCephDaemonMetrics(mts, dName)
+		So(func() { testCeph.GetCephDaemonMetrics(mts, dName) }, ShouldNotPanic)
+		result, err := testCeph.GetCephDaemonMetrics(mts, dName)
 		So(len(result), ShouldEqual, desiredMtsCnt(dName, mts))
 		So(result[0].Data(), ShouldBeNil)
 		So(err, ShouldBeNil)
@@ -295,8 +295,8 @@ func Test_getCephDaemonMetrics(t *testing.T) {
 	Convey("get ceph-daemon metrics (1)", t, func() {
 		cmd = &TestCmd{out: mockOut}
 		dName := "mds.a"
-		So(func() { testCeph.getCephDaemonMetrics(mts, dName) }, ShouldNotPanic)
-		result, err := testCeph.getCephDaemonMetrics(mts, dName)
+		So(func() { testCeph.GetCephDaemonMetrics(mts, dName) }, ShouldNotPanic)
+		result, err := testCeph.GetCephDaemonMetrics(mts, dName)
 		So(result, ShouldNotBeEmpty)
 		So(len(result), ShouldEqual, desiredMtsCnt(dName, mts))
 		So(result[0].Data(), ShouldNotBeNil)
@@ -306,8 +306,8 @@ func Test_getCephDaemonMetrics(t *testing.T) {
 	Convey("get ceph-daemon metrics (2)", t, func() {
 		cmd = &TestCmd{out: mockOut}
 		dName := "mds.b"
-		So(func() { testCeph.getCephDaemonMetrics(mts, dName) }, ShouldNotPanic)
-		result, err := testCeph.getCephDaemonMetrics(mts, dName)
+		So(func() { testCeph.GetCephDaemonMetrics(mts, dName) }, ShouldNotPanic)
+		result, err := testCeph.GetCephDaemonMetrics(mts, dName)
 		So(result, ShouldNotBeEmpty)
 		So(len(result), ShouldEqual, desiredMtsCnt(dName, mts))
 		So(result[0].Data(), ShouldNotBeNil)
@@ -339,43 +339,6 @@ func TestGetMetricTypes(t *testing.T) {
 		So(err, ShouldBeNil)
 	})
 
-	Convey("getting metric namespace with error - perf dump output is not valid", t, func() {
-		ceph := &Ceph{}
-		cmd = &TestCmd{out: mockOutInvalid}
-		So(func() { ceph.GetMetricTypes(cfg) }, ShouldNotPanic)
-		result, err := ceph.GetMetricTypes(cfg)
-		So(result, ShouldBeEmpty)
-		So(err, ShouldNotBeNil)
-	})
-
-	Convey("getting metric namespace with error - perf dump execution error", t, func() {
-		ceph := &Ceph{}
-		cmd = &TestCmd{err: errors.New("execution error")}
-		So(func() { ceph.GetMetricTypes(cfg) }, ShouldNotPanic)
-		result, err := ceph.GetMetricTypes(cfg)
-		So(result, ShouldBeEmpty)
-		So(err, ShouldNotBeNil)
-	})
-
-	Convey("getting metric namespace with error - perf dump output is empty", t, func() {
-		ceph := &Ceph{}
-		moi := []byte(fmt.Sprintf("\n\n\n\n"))
-		cmd = &TestCmd{out: moi}
-		So(func() { ceph.GetMetricTypes(cfg) }, ShouldNotPanic)
-		result, err := ceph.GetMetricTypes(cfg)
-		So(result, ShouldBeEmpty)
-		So(err, ShouldNotBeNil)
-	})
-
-	Convey("getting metric namespace with error - none perf dump output", t, func() {
-		ceph := &Ceph{}
-		cmd = &TestCmd{}
-		So(func() { ceph.GetMetricTypes(cfg) }, ShouldNotPanic)
-		result, err := ceph.GetMetricTypes(cfg)
-		So(result, ShouldBeEmpty)
-		So(err, ShouldNotBeNil)
-	})
-
 	Convey("invalid path to ceph-daemon sockets", t, func() {
 		ceph := &Ceph{}
 		cmd = &TestCmd{out: mockOut}
@@ -383,7 +346,7 @@ func TestGetMetricTypes(t *testing.T) {
 		cfg_invalid.AddItem("socket_path", ctypes.ConfigValueStr{Value: "./test_invalid"})
 		cfg_invalid.AddItem("socket_prefix", ctypes.ConfigValueStr{Value: "ceph-"})
 		cfg_invalid.AddItem("socket_ext", ctypes.ConfigValueStr{Value: "asok"})
-		So(func() { ceph.GetMetricTypes(cfg_invalid) }, ShouldPanic)
+		So(func() { ceph.Init(cfg_invalid.Table()) }, ShouldPanic)
 	})
 
 	Convey("no ceph-daemon sockets available with set prefix", t, func() {
@@ -392,9 +355,8 @@ func TestGetMetricTypes(t *testing.T) {
 		cfg_inv_prefix := plugin.NewPluginConfigType()
 		cfg_inv_prefix.AddItem("socket_path", ctypes.ConfigValueStr{Value: "./test"})
 		cfg_inv_prefix.AddItem("socket_prefix", ctypes.ConfigValueStr{Value: "ceph_inv-"})
-		So(func() { ceph.GetMetricTypes(cfg_inv_prefix) }, ShouldNotPanic)
-		result, err := ceph.GetMetricTypes(cfg_inv_prefix)
-		So(result, ShouldBeNil)
+		So(func() { ceph.Init(cfg_inv_prefix.Table()) }, ShouldNotPanic)
+		err := ceph.Init(cfg_inv_prefix.Table())
 		So(err, ShouldNotBeNil)
 	})
 
@@ -404,9 +366,8 @@ func TestGetMetricTypes(t *testing.T) {
 		cfg_inv_ext := plugin.NewPluginConfigType()
 		cfg_inv_ext.AddItem("socket_path", ctypes.ConfigValueStr{Value: "./test"})
 		cfg_inv_ext.AddItem("socket_ext", ctypes.ConfigValueStr{Value: "asok_inv"})
-		So(func() { ceph.GetMetricTypes(cfg_inv_ext) }, ShouldNotPanic)
-		result, err := ceph.GetMetricTypes(cfg_inv_ext)
-		So(result, ShouldBeNil)
+		So(func() { ceph.Init(cfg_inv_ext.Table()) }, ShouldNotPanic)
+		err := ceph.Init(cfg_inv_ext.Table())
 		So(err, ShouldNotBeNil)
 	})
 
@@ -439,6 +400,7 @@ func Test_parsePerfDumpOut(t *testing.T) {
 
 func Test_getCephBinaryPath(t *testing.T) {
 	path := "/path/to/ceph/bin"
+	ceph := New()
 
 	Convey("path Ceph executable in Snap Global Config", t, func() {
 		cmd = &TestCmd{}
@@ -450,34 +412,38 @@ func Test_getCephBinaryPath(t *testing.T) {
 		So(result, ShouldEqual, path)
 	})
 
-	Convey("looking for Ceph executable in $PATH with no error", t, func() {
-		cfg := plugin.NewPluginConfigType()
-		cmd = &TestCmd{look_path: path}
-		So(func() { getCephBinaryPath(cfg.Table()) }, ShouldNotPanic)
-		result := getCephBinaryPath(cfg.Table())
-		So(result, ShouldEqual, path)
-	})
+	Convey("looking for Ceph executable default path", t, func() {
+		cp, _ := ceph.GetConfigPolicy()
+		cfgRules := cp.Get([]string{"intel", "storage", "ceph"}).RulesAsTable()
 
-	Convey("looking for Ceph executable in $PATH with error", t, func() {
-		cfg := plugin.NewPluginConfigType()
-		cmd = &TestCmd{look_path: path, look_err: errors.New("error")}
-		So(func() { getCephBinaryPath(cfg.Table()) }, ShouldNotPanic)
-		result := getCephBinaryPath(cfg.Table())
-		// getting default path to ceph executable
-		So(result, ShouldEqual, cephBinPathDefault)
+		for i := range cfgRules {
+			switch cfgRules[i].Name {
+			case "path":
+				So(cfgRules[i].Default.(*ctypes.ConfigValueStr).Value, ShouldEqual, cephBinPathDefault)
+			}
+		}
 	})
 }
 
 func Test_getSocketConf(t *testing.T) {
-	Convey("defaults Ceph socket details", t, func() {
-		cmd = &TestCmd{}
-		cfg := plugin.NewPluginConfigType()
+	ceph := New()
 
-		So(func() { getCephSocketConf(cfg.Table()) }, ShouldNotPanic)
-		result := getCephSocketConf(cfg.Table())
-		So(result.path, ShouldEqual, socketPathDefault)
-		So(result.prefix, ShouldEqual, socketPrefixDefault)
-		So(result.ext, ShouldEqual, socketExtDefault)
+	Convey("check Ceph socket default config", t, func() {
+		cmd = &TestCmd{}
+
+		cp, _ := ceph.GetConfigPolicy()
+		cfgRules := cp.Get([]string{"intel", "storage", "ceph"}).RulesAsTable()
+
+		for i := range cfgRules {
+			switch cfgRules[i].Name {
+			case "socket_path":
+				So(cfgRules[i].Default.(*ctypes.ConfigValueStr).Value, ShouldEqual, socketPathDefault)
+			case "socket_prefix":
+				So(cfgRules[i].Default.(*ctypes.ConfigValueStr).Value, ShouldEqual, socketPrefixDefault)
+			case "socket_ext":
+				So(cfgRules[i].Default.(*ctypes.ConfigValueStr).Value, ShouldEqual, socketExtDefault)
+			}
+		}
 	})
 
 	Convey("customize Ceph socket conf in Snap Global Conf", t, func() {
@@ -511,18 +477,25 @@ func Test_CollectMetrics(t *testing.T) {
 	// folder for mocked ceph socket, empty in the beginning
 	os.Mkdir("test", os.ModePerm)
 
-	mts := []plugin.PluginMetricType{
-		plugin.PluginMetricType{
-			Namespace_: []string{"intel", "storage", "ceph", "osd.2", "a", "aa"},
+	// Test data
+	config := cdata.NewNode()
+	mts := []plugin.MetricType{
+		plugin.MetricType{
+			Namespace_: core.NewNamespace("intel", "storage", "ceph", "osd", "2", "a", "aa"), Config_: config,
 		},
-		plugin.PluginMetricType{
-			Namespace_: []string{"intel", "storage", "ceph", "osd.3", "c", "cb", "cba"},
+		plugin.MetricType{
+			Namespace_: core.NewNamespace("intel", "storage", "ceph", "osd", "3", "c", "cb", "cba"), Config_: config,
 		},
 	}
-
-	config := cdata.NewNode()
-	for i, _ := range mts {
-		mts[i].Config_ = config
+	mtsDynamic := []plugin.MetricType{
+		plugin.MetricType{
+			Namespace_: core.NewNamespace("intel", "storage", "ceph", "osd", "*", "a", "aa"), Config_: config,
+		},
+	}
+	mtsDynamicErr := []plugin.MetricType{
+		plugin.MetricType{
+			Namespace_: core.NewNamespace("intel", "storage", "ceph", "osd", "*", "mnopqrst", "aabbcc"), Config_: config,
+		},
 	}
 
 	// set ceph socket conf value
@@ -534,7 +507,7 @@ func Test_CollectMetrics(t *testing.T) {
 		ceph := &Ceph{}
 		cmd = &TestCmd{out: mockOut}
 		ceph.daemons = []string{}
-		mts_empty := []plugin.PluginMetricType{}
+		mts_empty := []plugin.MetricType{}
 		So(func() { ceph.CollectMetrics(mts_empty) }, ShouldNotPanic)
 		result, err := ceph.CollectMetrics(mts_empty)
 		So(result, ShouldBeNil)
@@ -562,6 +535,7 @@ func Test_CollectMetrics(t *testing.T) {
 		cmd = &TestCmd{out: mockOut}
 		So(func() { ceph.CollectMetrics(mts) }, ShouldNotPanic)
 		result, err := ceph.CollectMetrics(mts)
+
 		So(result, ShouldBeEmpty)
 		So(err, ShouldBeNil)
 	})
@@ -575,6 +549,7 @@ func Test_CollectMetrics(t *testing.T) {
 		cmd = &TestCmd{out: mockOut}
 		So(func() { ceph.CollectMetrics(mts) }, ShouldNotPanic)
 		result, err := ceph.CollectMetrics(mts)
+
 		So(len(result), ShouldEqual, len(mts))
 
 		for _, r := range result {
@@ -582,7 +557,51 @@ func Test_CollectMetrics(t *testing.T) {
 		}
 		So(err, ShouldBeNil)
 	})
-	os.RemoveAll("test/")
+
+	Convey("collect dynamic metrics with no errors", t, func() {
+		ceph := &Ceph{}
+		cmd = &TestCmd{out: mockOut}
+		So(func() { ceph.CollectMetrics(mtsDynamic) }, ShouldNotPanic)
+		result, err := ceph.CollectMetrics(mtsDynamic)
+
+		So(len(result), ShouldEqual, 4)
+
+		for _, r := range result {
+			So(r.Data(), ShouldEqual, 1)
+		}
+		So(err, ShouldBeNil)
+	})
+
+	Convey("collect dynamic metrics for not existing metric", t, func() {
+		ceph := &Ceph{}
+		cmd = &TestCmd{out: mockOut}
+		So(func() { ceph.CollectMetrics(mtsDynamicErr) }, ShouldNotPanic)
+		result, err := ceph.CollectMetrics(mtsDynamicErr)
+
+		So(len(result), ShouldEqual, 4)
+
+		for _, r := range result {
+			So(r.Data(), ShouldBeNil)
+		}
+		So(err, ShouldBeNil)
+	})
+
+	os.Remove("test/osd.0.asok")
+	os.Remove("test/osd.1.asok")
+	os.Remove("test/osd.2.asok")
+	os.Remove("test/osd.3.asok")
+
+	Convey("collect dynamic metrics with no daemons available", t, func() {
+		ceph := &Ceph{}
+		cmd = &TestCmd{out: mockOut}
+		So(func() { ceph.CollectMetrics(mtsDynamic) }, ShouldNotPanic)
+		result, err := ceph.CollectMetrics(mtsDynamic)
+
+		So(result, ShouldBeEmpty)
+		So(err, ShouldNotBeNil)
+	})
+
+	os.Remove("test/")
 }
 
 func Test_New(t *testing.T) {
