@@ -71,3 +71,5 @@ restore_go_dep() {
 _dep=$(detect_go_dep)
 install_go_dep
 restore_go_dep
+_go_get github.com/smartystreets/goconvey
+_go_get github.com/stretchr/testify/mock
