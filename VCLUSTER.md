@@ -63,6 +63,6 @@ To stop virtual cluster, execute:
 ```
 
 More info can be found at:
- - http://docs.ceph.com/docs/v0.85/dev/dev_cluster_deployement/
- - http://docs.ceph.com/docs/v0.78/rados/operations/pools/
- - http://docs.ceph.com/docs/giant/man/8/rados/
+ - http://docs.ceph.com/docs/jewel/dev/dev_cluster_deployement/
+ - http://docs.ceph.com/docs/jewel/rados/operations/pools/
+ - http://docs.ceph.com/docs/jewel/man/8/rados/
