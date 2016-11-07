@@ -44,7 +44,15 @@
               "user": "root",
               "password": "secret"
           }
-      }
+      },
+      "publish": [
+          {
+              "plugin_name": "file",
+              "config": {
+                  "file": "/tmp/snap-ceph-file.log"
+              }
+          }
+      ]
     }
   }
 }
