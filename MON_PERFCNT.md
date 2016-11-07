@@ -49,9 +49,8 @@ cluster/num_mds_up | MDSs that are up
 cluster/num_mds_in | MDS in state \in\ (they are in cluster)
 cluster/num_mds_failed | Failed MDS
 cluster/mds_epoch | Current epoch of MDS map
- |
-finisher-monstore/queue_len | Length of queue in finisher-monstore
- |
+finisher-monstore/queue_len | [No description]
+finisher-monstore/complete_latency | [No description]
 leveldb/leveldb_get | Gets
 leveldb/leveldb_transaction | Transactions
 leveldb/leveldb_get_latency | Get Latency
@@ -61,7 +60,6 @@ leveldb/leveldb_compact | Compactions
 leveldb/leveldb_compact_range | Compactions by range
 leveldb/leveldb_compact_queue_merge | Mergings of ranges in compaction queue
 leveldb/leveldb_compact_queue_len | Length of compaction queue
- |
 mon/num_sessions | Open sessions
 mon/session_add | Created sessions
 mon/session_rm | Removed sessions
@@ -70,55 +68,37 @@ mon/num_elections | Elections participated in
 mon/election_call | Elections started
 mon/election_win | Elections won
 mon/election_lose | Elections lost
- |
 paxos/start_leader | Starts in leader role
 paxos/start_peon | Starts in peon role
 paxos/restart | Restarts
 paxos/refresh | Refreshes
-paxos/refresh_latency/avgcount | Refresh latency
-paxos/refresh_latency/sum | Refresh latency
+paxos/refresh_latency | Refresh latency
 paxos/begin | Started and handled begins
-paxos/begin_keys/avgcount | Keys in transaction on begin
-paxos/begin_keys/sum | Keys in transaction on begin
-paxos/begin_bytes/avgcount | Data in transaction on begin
-paxos/begin_bytes/sum | Data in transaction on begin
-paxos/begin_latency/avgcount | Latency of begin operation
-paxos/begin_latency/sum | Latency of begin operation
+paxos/begin_keys | Keys in transaction on begin
+paxos/begin_bytes | Data in transaction on begin
+paxos/begin_latency | Latency of begin operation
 paxos/commit | Commits
-paxos/commit_keys/avgcount | Keys in transaction on commit
-paxos/commit_keys/sum | Keys in transaction on commit
-paxos/commit_bytes/avgcount | Data in transaction on commit
-paxos/commit_bytes/sum | Data in transaction on commit
-paxos/commit_latency/avgcount | Commit latency
-paxos/commit_latency/sum | Commit latency
+paxos/commit_keys | Keys in transaction on commit
+paxos/commit_bytes | Data in transaction on commit
+paxos/commit_latency | Commit latency
 paxos/collect | Peon collects
-paxos/collect_keys/avgcount | Keys in transaction on peon collect
-paxos/collect_keys/sum | Keys in transaction on peon collect
-paxos/collect_bytes/avgcount | Data in transaction on peon collect
-paxos/collect_bytes/sum | Data in transaction on peon collect
-paxos/collect_latency/avgcount | Peon collect latency
-paxos/collect_latency/sum | Peon collect latency
+paxos/collect_keys | Keys in transaction on peon collect
+paxos/collect_bytes | Data in transaction on peon collect
+paxos/collect_latency | Peon collect latency
 paxos/collect_uncommitted | Uncommitted values in started and handled collects
 paxos/collect_timeout | Collect timeouts
 paxos/accept_timeout | Accept timeouts
 paxos/lease_ack_timeout | Lease acknowledgement timeouts
 paxos/lease_timeout | Lease timeouts
 paxos/store_state | Store a shared state on disk
-paxos/store_state_keys/avgcount | Keys in transaction in stored state
-paxos/store_state_keys/sum | Keys in transaction in stored state
-paxos/store_state_bytes/avgcount | Data in transaction in stored state
-paxos/store_state_bytes/sum | Data in transaction in stored state
-paxos/store_state_latency/avgcount | Storing state latency
-paxos/store_state_latency/sum | Storing state latency
+paxos/store_state_keys | Keys in transaction in stored state
+paxos/store_state_bytes | Data in transaction in stored state
+paxos/store_state_latency | Storing state latency
 paxos/share_state | Sharings of state
-paxos/share_state_keys/avgcount | Keys in shared state
-paxos/share_state_keys/sum | Keys in shared state
-paxos/share_state_bytes/avgcount | Data in shared state
-paxos/share_state_bytes/sum | Data in shared state
+paxos/share_state_keys | Keys in shared state
+paxos/share_state_bytes | Data in shared state
 paxos/new_pn | New proposal number queries
-paxos/new_pn_latency/avgcount | New proposal number getting latency
-paxos/new_pn_latency/sum | New proposal number getting latency
- |
+paxos/new_pn_latency | New proposal number getting latency
 throttle-mon_client_bytes/val | Currently available throttle
 throttle-mon_client_bytes/max | Max value for throttle
 throttle-mon_client_bytes/get | Gets
@@ -129,9 +109,7 @@ throttle-mon_client_bytes/take | Takes
 throttle-mon_client_bytes/take_sum | Taken data
 throttle-mon_client_bytes/put | Puts
 throttle-mon_client_bytes/put_sum | Put data
-throttle-mon_client_bytes/wait/avgcount | Waiting latency
-throttle-mon_client_bytes/wait/sum | Waiting latency
- |
+throttle-mon_client_bytes/wait | Waiting latency
 throttle-mon_daemon_bytes/val | Currently available throttle
 throttle-mon_daemon_bytes/max | Max value for throttle
 throttle-mon_daemon_bytes/get | Gets
@@ -142,9 +120,7 @@ throttle-mon_daemon_bytes/take | Takes
 throttle-mon_daemon_bytes/take_sum | Taken data
 throttle-mon_daemon_bytes/put | Puts
 throttle-mon_daemon_bytes/put_sum | Put data
-throttle-mon_daemon_bytes/wait/avgcount | Waiting latency
-throttle-mon_daemon_bytes/wait/sum | Waiting latency
- |
+throttle-mon_daemon_bytes/wait | Waiting latency
 throttle-msgr_dispatch_throttler-mon/val | Currently available throttle
 throttle-msgr_dispatch_throttler-mon/max | Max value for throttle
 throttle-msgr_dispatch_throttler-mon/get | Gets
@@ -155,5 +131,5 @@ throttle-msgr_dispatch_throttler-mon/take | Takes
 throttle-msgr_dispatch_throttler-mon/take_sum | Taken data
 throttle-msgr_dispatch_throttler-mon/put | Puts
 throttle-msgr_dispatch_throttler-mon/put_sum | Put data
-throttle-msgr_dispatch_throttler-mon/wait/avgcount | Waiting latency
-throttle-msgr_dispatch_throttler-mon/wait/sum | Waiting latency
+throttle-msgr_dispatch_throttler-mon/wait | Waiting latency
+
