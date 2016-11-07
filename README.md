@@ -125,7 +125,7 @@ Or see available metrics only for OSDs:
 ```
 $ $SNAP_PATH/snapctl metric list | grep ceph/osd
 ```
-Download desired processor and publisher plugins eg.
+Download desired publisher plugin eg.
 ```
 $ wget http://snap.ci.snap-telemetry.io/plugins/snap-plugin-publisher-file/latest/linux/x86_64/snsap-plugin-publisher-file
 ```
