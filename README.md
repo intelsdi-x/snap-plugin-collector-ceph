@@ -1,4 +1,4 @@
-# snap collector plugin - Ceph
+# Snap collector plugin - Ceph
 
 This  plugin collects Ceph performance counters from the Ceph Storage System for:
 * MON (Ceph Monitor Daemon)
@@ -8,7 +8,7 @@ This  plugin collects Ceph performance counters from the Ceph Storage System for
 The perf counters data are accessed via the Ceph admin socket.
 The intention is that data will be collected, aggregated and fed into another tool for graphing and analysis.
 
-This plugin is used in the [snap framework] (http://github.com/intelsdi-x/snap).
+This plugin is used in the [Snap framework] (http://github.com/intelsdi-x/snap).
 
 1. [Getting Started](#getting-started)
   * [System Requirements](#system-requirements)
@@ -51,14 +51,14 @@ Build the plugin by running make within the cloned repo:
 ```
 $ make
 ```
-This builds the plugin in `/build/rootfs/`
+This builds the plugin in `/build/${GOOS}/${GOARCH}`
 
 ### Configuration and Usage
-* Set up the [snap framework](https://github.com/intelsdi-x/snap/blob/master/README.md#getting-started)
+* Set up the [Snap framework](https://github.com/intelsdi-x/snap/blob/master/README.md#getting-started)
 * Ensure `$SNAP_PATH` is exported
-`export SNAP_PATH=$GOPATH/src/github.com/intelsdi-x/snap/build`
+`export SNAP_PATH=$GOPATH/src/github.com/intelsdi-x/snap/linux/x86_64`
 
-* Set proper snap Global Config field(s) to customize Ceph's path:
+* Set proper Snap Global Config field(s) to customize Ceph's path:
 
 Namespace | Data Type | Description
 ----------|-----------|-----------------------
@@ -75,8 +75,8 @@ Sample Global Config is available in folder /examples/configs.
 To learn more about this plugin and ceph perf counters, visit:
 
 * [ceph perf counters doc] (http://ceph.com/docs/master/dev/perf_counters)
-* [snap ceph unit test](https://github.com/intelsdi-x/snap-plugin-collector-ceph/blob/master/ceph/ceph_test.go)
-* [snap ceph examples](#examples)
+* [Snap ceph unit test](https://github.com/intelsdi-x/snap-plugin-collector-ceph/blob/master/ceph/ceph_test.go)
+* [Snap ceph examples](#examples)
 
 Resetting the perf counters before measurement is recommended. This feature was added in the Ceph 0.90 (Hammer release):
 ```
@@ -95,20 +95,20 @@ By default metrics are gathered once per second.
 
 ### Examples
 
-Example of running snap ceph perf counters collector and writing data to file.
+Example of running Snap ceph perf counters collector and writing data to file.
 
-Run the snap daemon on each node with defaults settings:
+Run the Snap daemon on each node with defaults settings:
 ```
-$ snapd -l 1 -t 0
+$ $SNAP_PATH/snapd -l 1 -t 0
 ```
-Or set custom settings in snap Global Config in Ceph section (see examples/configs/pulse-config-sample.json):
+Or set custom settings in Snap Global Config in Ceph section (see examples/configs/snap-config-sample.json):
 ```
-$ snapd -l 1 -t 0 --config $SNAP_CEPH_PLUGIN_DIR/examples/configs/pulse-config-sample.json
+$ $SNAP_PATH/snapd -l 1 -t 0 --config $SNAP_CEPH_PLUGIN_DIR/examples/configs/snap-config-sample.json
 ```
 
 Load ceph plugin for collecting:
 ```
-$ snapctl plugin load $SNAP_CEPH_PLUGIN_DIR/build/rootfs/snap-plugin-collector-ceph
+$ $SNAP_PATH/snapctl plugin load $SNAP_CEPH_PLUGIN_DIR/build/linux/x86_64/snap-plugin-collector-ceph
 Plugin loaded
 Name: ceph
 Version: 4
@@ -118,17 +118,20 @@ Loaded Time: Tue, 01 Dec 2015 06:19:48 EST
 ```
 See available metrics for all ceph-daemon in cluster:
 ```
-$ snapctl metric list
+$ $SNAP_PATH/snapctl metric list
 ```
 
 Or see available metrics only for OSDs:
 ```
-$ snapctl metric list | grep ceph/osd
+$ $SNAP_PATH/snapctl metric list | grep ceph/osd
 ```
-
+Download desired publisher plugin eg.
+```
+$ wget http://snap.ci.snap-telemetry.io/plugins/snap-plugin-publisher-file/latest/linux/x86_64/snsap-plugin-publisher-file
+```
 Load file plugin for publishing:
 ```
-$ snapctl plugin load $SNAP_DIR/build/plugin/snap-publisher-file
+$ $SNAP_PATH/snapctl plugin load snap-plugin-publisher-file
 Plugin loaded
 Name: file
 Version: 4
@@ -178,7 +181,15 @@ Create a task JSON file (exemplary file in examples/tasks/ceph-file.json):
               "user": "root",
               "password": "secret"
           }
-      }
+      },
+      "publish": [
+          {
+              "plugin_name": "file",
+              "config": {
+                  "file": "/tmp/snap-ceph.file.log"
+              }
+          }
+      ]
     }
   }
 }
@@ -186,7 +197,7 @@ Create a task JSON file (exemplary file in examples/tasks/ceph-file.json):
 
 Create a task:
 ```
-$ snapctl task create -t $SNAP_CEPH_PLUGIN_DIR/examples/tasks/ceph-file.json
+$ $SNAP_PATH/snapctl task create -t $SNAP_CEPH_PLUGIN_DIR/examples/tasks/ceph-file.json
 Using task manifest to create task
 Task created
 ID: 029cc837-ccd7-41b0-8103-949c0ba0070f
@@ -197,7 +208,7 @@ State: Running
 See sample output from `snapctl task watch <task_id>`
 
 ```
-$ snapctl task watch 029cc837-ccd7-41b0-8103-949c0ba0070f
+$ $SNAP_PATH/snapctl task watch 029cc837-ccd7-41b0-8103-949c0ba0070f
 
 Watching Task (029cc837-ccd7-41b0-8103-949c0ba0070f):
 NAMESPACE                                                        DATA                    TIMESTAMP
@@ -339,12 +350,12 @@ These data are published to file and stored there (in this example in /tmp/publi
 
 Stop task:
 ```
-$ $SNAP_PATH/bin/snapctl task stop 029cc837-ccd7-41b0-8103-949c0ba0070f
+$ $SNAP_PATH/snapctl task stop 029cc837-ccd7-41b0-8103-949c0ba0070f
 Task stopped:
 ID: 029cc837-ccd7-41b0-8103-949c0ba0070f
 ```
 
-**Notice:**																																			**Using the snap tribe is recommended.** Administrators can control all snap nodes in a tribe agreement by messaging just one of them what makes cluster configuration management simple. Read more about the snap tribe at https://github.com/intelsdi-x/snap.
+**Notice:**																																			**Using the Snap tribe is recommended.** Administrators can control all Snap nodes in a tribe agreement by messaging just one of them what makes cluster configuration management simple. Read more about the Snap tribe at https://github.com/intelsdi-x/snap.
 
 ### Roadmap
 This plugin is in active development. As we launch this plugin, we have a few items in mind for the next release:
@@ -353,7 +364,7 @@ This plugin is in active development. As we launch this plugin, we have a few it
 As we launch this plugin, we do not have any outstanding requirements for the next release. If you have a feature request, please add it as an [issue](https://github.com/intelsdi-x/snap-plugin-collector-ceph/issues).
 
 ## Community Support
-This repository is one of **many** plugins in the **snap**, a powerful telemetry agent framework. See the full project at
+This repository is one of **many** plugins in the **Snap**, a powerful telemetry agent framework. See the full project at
 http://github.com/intelsdi-x/snap. To reach out to other users, head to the [main framework](https://github.com/intelsdi-x/snap#community-support).
 
 
@@ -364,7 +375,7 @@ There is more than one way to give back, from examples to blogs to code updates.
 
 ## License
 
-[snap](http://github.com/intelsdi-x/snap), along with this plugin, is an Open Source software released under the Apache 2.0 [License](LICENSE).
+[Snap](http://github.com/intelsdi-x/snap), along with this plugin, is an Open Source software released under the Apache 2.0 [License](LICENSE).
 
 
 ## Acknowledgements
