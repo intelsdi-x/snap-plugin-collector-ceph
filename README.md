@@ -365,7 +365,7 @@ As we launch this plugin, we do not have any outstanding requirements for the ne
 
 ## Community Support
 This repository is one of **many** plugins in the **Snap**, a powerful telemetry agent framework. See the full project at
-http://github.com/intelsdi-x/snap. To reach out to other users, head to the [main framework](https://github.com/intelsdi-x/snap#community-support).
+http://github.com/intelsdi-x/snap. To reach out on other use cases, visit [Slack](http://slack.snap-telemetry.io).
 
 
 ## Contributing
