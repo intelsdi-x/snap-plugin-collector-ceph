@@ -1,8 +1,12 @@
-hash: f5dcf2302ef673cd7c23e545baf4fbffd0de0d74c2be2ce6fb4a3465763905ae
-updated: 2016-11-07T11:39:38.896234331+01:00
+hash: a2af5919e12636cb4526c6c10cec5b07e811f0cb22599b77c1b5fbb6bffbdb22
+updated: 2017-02-06T11:17:43.346206909+01:00
 imports:
+- name: github.com/golang/protobuf
+  version: 888eb0692c857ec880338addf316bd662d5e630e
+  subpackages:
+  - proto
 - name: github.com/intelsdi-x/snap
-  version: 0a2acb7bd09234e363c8fd8ce0d824e43cec145a
+  version: 791370a94504b7e48f2911c71f00a14cd1515ca1
   subpackages:
   - control/plugin
   - control/plugin/cpolicy
@@ -14,13 +18,46 @@ imports:
   - core/serror
   - pkg/ctree
   - pkg/schedule
+  - pkg/stringutils
   - scheduler/wmap
+- name: github.com/intelsdi-x/snap-plugin-lib-go
+  version: ed851e36ef19aa204063ac1e30551ce1e50fa816
+  subpackages:
+  - v1
+  - v1/plugin
+  - v1/plugin/rpc
+- name: github.com/julienschmidt/httprouter
+  version: 8a45e95fc75cb77048068a62daed98cc22fdac7c
 - name: github.com/robfig/cron
-  version: 32d9c273155a0506d27cf73dd1246e86a470997e
+  version: 9585fd555638e77bba25f25db5c44b41f264aeb7
 - name: github.com/Sirupsen/logrus
-  version: 55eb11d21d2a31a3cc93838241d04800f52e823d
+  version: 61e43dc76f7ee59a82bdf3d71033dc12bea4c77d
+- name: golang.org/x/net
+  version: 154d9f9ea81208afed560f4cf27b4860c8ed1904
+  subpackages:
+  - context
+  - http2
+  - http2/hpack
+  - internal/timeseries
+  - lex/httplex
+  - trace
+- name: golang.org/x/sys
+  version: 7a6e5648d140666db5d920909e082ca00a87ba2c
+  subpackages:
+  - unix
+- name: google.golang.org/grpc
+  version: 0032a855ba5c8a3c8e0d71c2deef354b70af1584
+  subpackages:
+  - codes
+  - credentials
+  - grpclog
+  - internal
+  - metadata
+  - naming
+  - peer
+  - transport
 - name: gopkg.in/yaml.v2
-  version: c1cd2254a6dd314c9d73c338c12688c9325d85c6
+  version: 4c78c975fe7c825c6d1466c42be594d1d6f3aba6
 testImports:
 - name: github.com/gopherjs/gopherjs
   version: 4b53e1bddba0e2f734514aeb6c02db652f4c6fe8

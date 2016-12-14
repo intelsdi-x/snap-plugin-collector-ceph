@@ -37,7 +37,7 @@ In order to use this plugin you need Ceph cluster running.
 
 #### To deploy the Ceph cluster
 
-The quickest way to get a Ceph cluster up and running is to follow the Getting Started guides available at http://ceph.com/resources/downloads/. 		It can be tested also on a fake local cluster on Your machine. Read more about [how to deploy fake local Ceph cluster](VCLUSTER.md).
+The quickest way to get a Ceph cluster up and running is to follow the Getting Started guides available at http://ceph.com/resources/downloads/.                 It can be tested also on a fake local cluster on Your machine. Read more about [how to deploy fake local Ceph cluster](VCLUSTER.md).
 
 #### To build the plugin binary:
 Fork https://github.com/intelsdi-x/snap-plugin-collector-ceph
@@ -62,7 +62,7 @@ This builds the plugin in `/build/${GOOS}/${GOARCH}`
 
 Namespace | Data Type | Description
 ----------|-----------|-----------------------
-**path** | string | Path to "ceph" executable. Defaults to"/usr/bin/ceph"
+**path** | string | Path to "ceph" executable. Defaults to"/usr/bin"
 **socket_path** | string | The location of the ceph monitoring sockets. Defaults to "/var/run/ceph"
 **socket_prefix** | string | The first part of socket names. Defaults to "ceph-"
 **socket_ext** | string | Extension for socket filenames. Defaults to "asok"
@@ -74,7 +74,7 @@ Sample Global Config is available in folder /examples/configs.
 
 To learn more about this plugin and ceph perf counters, visit:
 
-* [ceph perf counters doc] (http://ceph.com/docs/master/dev/perf_counters)
+* [ceph perf counters doc](http://ceph.com/docs/master/dev/perf_counters)
 * [Snap ceph unit test](https://github.com/intelsdi-x/snap-plugin-collector-ceph/blob/master/ceph/ceph_test.go)
 * [Snap ceph examples](#examples)
 
@@ -84,11 +84,12 @@ $ sudo ceph daemon <daemon-name> perf reset all | <perf_cnt_name>
 ```
 
 ### Collected Metrics
-This plugin has the ability to gather the following Ceph perf counters from:
+This plugin has the ability to dynamically gather all Ceph perf counters straight from your Ceph version:
 
-* MON [see more...](MON_PERFCNT.md)
-* MDS [see more...](MDS_PERFCNT.md)
-* OSD [see more...](OSD_PERFCNT.md)
+* Example metric list for Ceph 11.0.2:
+  - [MDS daemon](MDS_PERFCNT.md)
+  - [MON daemon](MON_PERFCNT.md)
+  - [OSD daemon](OSD_PERFCNT.md)
 
 By default metrics are gathered once per second.
 
@@ -97,11 +98,14 @@ By default metrics are gathered once per second.
 
 Example of running Snap ceph perf counters collector and writing data to file.
 
-Run the Snap daemon on each node with defaults settings:
+Run snap daemon with default config values (see the table above):
+
 ```
 $ $SNAP_PATH/snapteld -l 1 -t 0
 ```
-Or set custom settings in Snap Global Config in Ceph section (see examples/configs/snap-config-sample.json):
+
+Or with your custom Snap Global Config (see examples/configs/snap-config-sample.json):
+
 ```
 $ $SNAP_PATH/snapteld -l 1 -t 0 --config $SNAP_CEPH_PLUGIN_DIR/examples/configs/snap-config-sample.json
 ```
@@ -111,10 +115,10 @@ Load ceph plugin for collecting:
 $ $SNAP_PATH/snaptel plugin load $SNAP_CEPH_PLUGIN_DIR/build/linux/x86_64/snap-plugin-collector-ceph
 Plugin loaded
 Name: ceph
-Version: 4
+Version: 6
 Type: collector
 Signed: false
-Loaded Time: Tue, 01 Dec 2015 06:19:48 EST
+Loaded Time: Tue, 09 Feb 2017 06:19:48 EST
 ```
 See available metrics for all ceph-daemon in cluster:
 ```
@@ -137,7 +141,7 @@ Name: file
 Version: 4
 Type: publisher
 Signed: false
-Loaded Time: Tue, 01 Dec 2015 07:45:58 EST
+Loaded Time: Tue, 09 Feb 2017 07:45:58 EST
 ```
 
 Create a task JSON file (exemplary file in examples/tasks/ceph-file.json):
@@ -176,12 +180,6 @@ Create a task JSON file (exemplary file in examples/tasks/ceph-file.json):
         "/intel/storage/ceph/osd/*/osd/op_rw_process_latency": {},
         "/intel/storage/ceph/osd/*/osd/op_rw_rlat": {}
       },
-      "config": {
-          "/intel/storage/ceph": {
-              "user": "root",
-              "password": "secret"
-          }
-      },
       "publish": [
           {
               "plugin_name": "file",
@@ -211,138 +209,51 @@ See sample output from `snaptel task watch <task_id>`
 $ $SNAP_PATH/snaptel task watch 029cc837-ccd7-41b0-8103-949c0ba0070f
 
 Watching Task (029cc837-ccd7-41b0-8103-949c0ba0070f):
-NAMESPACE                                                        DATA                    TIMESTAMP
-/intel/storage/ceph/mon/a/cluster/num_mon                        1                       2016-05-25 12:46:25.008948694 +0200 CEST
-/intel/storage/ceph/mon/a/cluster/num_object                     20                      2016-05-25 12:46:25.008948694 +0200 CEST
-/intel/storage/ceph/mon/a/cluster/num_osd                        2                       2016-05-25 12:46:25.008948694 +0200 CEST
-/intel/storage/ceph/mon/a/cluster/num_pg                         24                      2016-05-25 12:46:25.008948694 +0200 CEST
-/intel/storage/ceph/mon/a/cluster/osd_bytes                      2.147483648e+09         2016-05-25 12:46:25.008948694 +0200 CEST
-/intel/storage/ceph/mon/a/cluster/osd_bytes_used                 40960                   2016-05-25 12:46:25.008948694 +0200 CEST
-/intel/storage/ceph/osd/0/osd/op                                 8                       2016-05-25 12:46:25.146922352 +0200 CEST
-/intel/storage/ceph/osd/0/osd/op_cache_hit                       0                       2016-05-25 12:46:25.146922352 +0200 CEST
-/intel/storage/ceph/osd/0/osd/op_in_bytes                        1032                    2016-05-25 12:46:25.146922352 +0200 CEST
-/intel/storage/ceph/osd/0/osd/op_latency/avgcount                8                       2016-05-25 12:46:25.146922352 +0200 CEST
-/intel/storage/ceph/osd/0/osd/op_latency/sum                     0.082809936             2016-05-25 12:46:25.146922352 +0200 CEST
-/intel/storage/ceph/osd/0/osd/op_out_bytes                       0                       2016-05-25 12:46:25.146922352 +0200 CEST
-/intel/storage/ceph/osd/0/osd/op_process_latency/avgcount        8                       2016-05-25 12:46:25.146922352 +0200 CEST
-/intel/storage/ceph/osd/0/osd/op_process_latency/sum             0.036669336             2016-05-25 12:46:25.146922352 +0200 CEST
-/intel/storage/ceph/osd/0/osd/op_r                               0                       2016-05-25 12:46:25.146922352 +0200 CEST
-/intel/storage/ceph/osd/0/osd/op_r_latency/avgcount              0                       2016-05-25 12:46:25.146922352 +0200 CEST
-/intel/storage/ceph/osd/0/osd/op_r_latency/sum                   0                       2016-05-25 12:46:25.146922352 +0200 CEST
-/intel/storage/ceph/osd/0/osd/op_r_out_bytes                     0                       2016-05-25 12:46:25.146922352 +0200 CEST
-/intel/storage/ceph/osd/0/osd/op_r_process_latency/avgcount      0                       2016-05-25 12:46:25.146922352 +0200 CEST
-/intel/storage/ceph/osd/0/osd/op_r_process_latency/sum           0                       2016-05-25 12:46:25.146922352 +0200 CEST
-/intel/storage/ceph/osd/0/osd/op_rw                              4                       2016-05-25 12:46:25.146922352 +0200 CEST
-/intel/storage/ceph/osd/0/osd/op_rw_in_bytes                     1032                    2016-05-25 12:46:25.146922352 +0200 CEST
-/intel/storage/ceph/osd/0/osd/op_rw_latency/avgcount             4                       2016-05-25 12:46:25.146922352 +0200 CEST
-/intel/storage/ceph/osd/0/osd/op_rw_latency/sum                  0.03521104              2016-05-25 12:46:25.146922352 +0200 CEST
-/intel/storage/ceph/osd/0/osd/op_rw_out_bytes                    0                       2016-05-25 12:46:25.146922352 +0200 CEST
-/intel/storage/ceph/osd/0/osd/op_rw_process_latency/avgcount     4                       2016-05-25 12:46:25.146922352 +0200 CEST
-/intel/storage/ceph/osd/0/osd/op_rw_process_latency/sum          0.023461402             2016-05-25 12:46:25.146922352 +0200 CEST
-/intel/storage/ceph/osd/0/osd/op_rw_rlat/avgcount                4                       2016-05-25 12:46:25.146922352 +0200 CEST
-/intel/storage/ceph/osd/0/osd/op_rw_rlat/sum                     0.034607209             2016-05-25 12:46:25.146922352 +0200 CEST
-/intel/storage/ceph/osd/1/osd/op                                 22                      2016-05-25 12:46:25.28233031 +0200 CEST
-/intel/storage/ceph/osd/1/osd/op_cache_hit                       0                       2016-05-25 12:46:25.28233031 +0200 CEST
-/intel/storage/ceph/mon/a/cluster/num_mon                        1                       2016-05-25 12:46:26.014505366 +0200 CEST
-/intel/storage/ceph/mon/a/cluster/num_object                     20                      2016-05-25 12:46:26.014505366 +0200 CEST
-/intel/storage/ceph/mon/a/cluster/num_osd                        2                       2016-05-25 12:46:26.014505366 +0200 CEST
-/intel/storage/ceph/mon/a/cluster/num_pg                         24                      2016-05-25 12:46:26.014505366 +0200 CEST
-/intel/storage/ceph/mon/a/cluster/osd_bytes                      2.147483648e+09         2016-05-25 12:46:26.014505366 +0200 CEST
-/intel/storage/ceph/mon/a/cluster/osd_bytes_used                 40960                   2016-05-25 12:46:26.014505366 +0200 CEST
-/intel/storage/ceph/osd/0/osd/op                                 8                       2016-05-25 12:46:26.153578696 +0200 CEST
-/intel/storage/ceph/osd/0/osd/op_cache_hit                       0                       2016-05-25 12:46:26.153578696 +0200 CEST
-/intel/storage/ceph/osd/0/osd/op_in_bytes                        1032                    2016-05-25 12:46:26.153578696 +0200 CEST
-/intel/storage/ceph/osd/0/osd/op_latency/avgcount                8                       2016-05-25 12:46:26.153578696 +0200 CEST
-/intel/storage/ceph/osd/0/osd/op_latency/sum                     0.082809936             2016-05-25 12:46:26.153578696 +0200 CEST
-/intel/storage/ceph/osd/0/osd/op_out_bytes                       0                       2016-05-25 12:46:26.153578696 +0200 CEST
-/intel/storage/ceph/osd/0/osd/op_process_latency/avgcount        8                       2016-05-25 12:46:26.153578696 +0200 CEST
-/intel/storage/ceph/osd/0/osd/op_process_latency/sum             0.036669336             2016-05-25 12:46:26.153578696 +0200 CEST
-/intel/storage/ceph/osd/0/osd/op_r                               0                       2016-05-25 12:46:26.153578696 +0200 CEST
-/intel/storage/ceph/osd/0/osd/op_r_latency/avgcount              0                       2016-05-25 12:46:26.153578696 +0200 CEST
-/intel/storage/ceph/osd/0/osd/op_r_latency/sum                   0                       2016-05-25 12:46:26.153578696 +0200 CEST
-/intel/storage/ceph/osd/0/osd/op_r_out_bytes                     0                       2016-05-25 12:46:26.153578696 +0200 CEST
-/intel/storage/ceph/osd/0/osd/op_r_process_latency/avgcount      0                       2016-05-25 12:46:26.153578696 +0200 CEST
-/intel/storage/ceph/osd/0/osd/op_r_process_latency/sum           0                       2016-05-25 12:46:26.153578696 +0200 CEST
-/intel/storage/ceph/osd/0/osd/op_rw                              4                       2016-05-25 12:46:26.153578696 +0200 CEST
-/intel/storage/ceph/osd/0/osd/op_rw_in_bytes                     1032                    2016-05-25 12:46:26.153578696 +0200 CEST
-/intel/storage/ceph/osd/0/osd/op_rw_latency/avgcount             4                       2016-05-25 12:46:26.153578696 +0200 CEST
-/intel/storage/ceph/osd/0/osd/op_rw_latency/sum                  0.03521104              2016-05-25 12:46:26.153578696 +0200 CEST
-/intel/storage/ceph/osd/0/osd/op_rw_out_bytes                    0                       2016-05-25 12:46:26.153578696 +0200 CEST
-/intel/storage/ceph/osd/0/osd/op_rw_process_latency/avgcount     4                       2016-05-25 12:46:26.153578696 +0200 CEST
-/intel/storage/ceph/osd/0/osd/op_rw_process_latency/sum          0.023461402             2016-05-25 12:46:26.153578696 +0200 CEST
-/intel/storage/ceph/osd/0/osd/op_rw_rlat/avgcount                4                       2016-05-25 12:46:26.153578696 +0200 CEST
-/intel/storage/ceph/osd/0/osd/op_rw_rlat/sum                     0.034607209             2016-05-25 12:46:26.153578696 +0200 CEST
-/intel/storage/ceph/osd/1/osd/op                                 22                      2016-05-25 12:46:26.289102505 +0200 CEST
-/intel/storage/ceph/osd/1/osd/op_cache_hit                       0                       2016-05-25 12:46:26.289102505 +0200 CEST
-/intel/storage/ceph/mon/a/cluster/num_mon                        1                       2016-05-25 12:46:27.026023314 +0200 CEST
-/intel/storage/ceph/mon/a/cluster/num_object                     20                      2016-05-25 12:46:27.026023314 +0200 CEST
-/intel/storage/ceph/mon/a/cluster/num_osd                        2                       2016-05-25 12:46:27.026023314 +0200 CEST
-/intel/storage/ceph/mon/a/cluster/num_pg                         24                      2016-05-25 12:46:27.026023314 +0200 CEST
-/intel/storage/ceph/mon/a/cluster/osd_bytes                      2.147483648e+09         2016-05-25 12:46:27.026023314 +0200 CEST
-/intel/storage/ceph/mon/a/cluster/osd_bytes_used                 40960                   2016-05-25 12:46:27.026023314 +0200 CEST
-/intel/storage/ceph/osd/0/osd/op                                 8                       2016-05-25 12:46:27.162922457 +0200 CEST
-/intel/storage/ceph/osd/0/osd/op_cache_hit                       0                       2016-05-25 12:46:27.162922457 +0200 CEST
-/intel/storage/ceph/osd/0/osd/op_in_bytes                        1032                    2016-05-25 12:46:27.162922457 +0200 CEST
-/intel/storage/ceph/osd/0/osd/op_latency/avgcount                8                       2016-05-25 12:46:27.162922457 +0200 CEST
-/intel/storage/ceph/osd/0/osd/op_latency/sum                     0.082809936             2016-05-25 12:46:27.162922457 +0200 CEST
-/intel/storage/ceph/osd/0/osd/op_out_bytes                       0                       2016-05-25 12:46:27.162922457 +0200 CEST
-/intel/storage/ceph/osd/0/osd/op_process_latency/avgcount        8                       2016-05-25 12:46:27.162922457 +0200 CEST
-/intel/storage/ceph/osd/0/osd/op_process_latency/sum             0.036669336             2016-05-25 12:46:27.162922457 +0200 CEST
-/intel/storage/ceph/osd/0/osd/op_r                               0                       2016-05-25 12:46:27.162922457 +0200 CEST
-/intel/storage/ceph/osd/0/osd/op_r_latency/avgcount              0                       2016-05-25 12:46:27.162922457 +0200 CEST
-/intel/storage/ceph/osd/0/osd/op_r_latency/sum                   0                       2016-05-25 12:46:27.162922457 +0200 CEST
-/intel/storage/ceph/osd/0/osd/op_r_out_bytes                     0                       2016-05-25 12:46:27.162922457 +0200 CEST
-/intel/storage/ceph/osd/0/osd/op_r_process_latency/avgcount      0                       2016-05-25 12:46:27.162922457 +0200 CEST
-/intel/storage/ceph/osd/0/osd/op_r_process_latency/sum           0                       2016-05-25 12:46:27.162922457 +0200 CEST
-/intel/storage/ceph/osd/0/osd/op_rw                              4                       2016-05-25 12:46:27.162922457 +0200 CEST
-/intel/storage/ceph/osd/0/osd/op_rw_in_bytes                     1032                    2016-05-25 12:46:27.162922457 +0200 CEST
-/intel/storage/ceph/osd/0/osd/op_rw_latency/avgcount             4                       2016-05-25 12:46:27.162922457 +0200 CEST
-/intel/storage/ceph/osd/0/osd/op_rw_latency/sum                  0.03521104              2016-05-25 12:46:27.162922457 +0200 CEST
-/intel/storage/ceph/osd/0/osd/op_rw_out_bytes                    0                       2016-05-25 12:46:27.162922457 +0200 CEST
-/intel/storage/ceph/osd/0/osd/op_rw_process_latency/avgcount     4                       2016-05-25 12:46:27.162922457 +0200 CEST
-/intel/storage/ceph/osd/0/osd/op_rw_process_latency/sum          0.023461402             2016-05-25 12:46:27.162922457 +0200 CEST
-/intel/storage/ceph/osd/0/osd/op_rw_rlat/avgcount                4                       2016-05-25 12:46:27.162922457 +0200 CEST
-/intel/storage/ceph/osd/0/osd/op_rw_rlat/sum                     0.034607209             2016-05-25 12:46:27.162922457 +0200 CEST
-/intel/storage/ceph/osd/1/osd/op                                 22                      2016-05-25 12:46:27.316945185 +0200 CEST
-/intel/storage/ceph/osd/1/osd/op_cache_hit                       0                       2016-05-25 12:46:27.316945185 +0200 CEST
-^Cntel/storage/ceph/mon/a/cluster/num_mon                        1                       2016-05-25 12:46:49.008879389 +0200 CEST
-/intel/storage/ceph/mon/a/cluster/num_object                     20                      2016-05-25 12:46:49.008879389 +0200 CEST
-/intel/storage/ceph/mon/a/cluster/num_osd                        2                       2016-05-25 12:46:49.008879389 +0200 CEST
-/intel/storage/ceph/mon/a/cluster/num_pg                         24                      2016-05-25 12:46:49.008879389 +0200 CEST
-/intel/storage/ceph/mon/a/cluster/osd_bytes                      2.147483648e+09         2016-05-25 12:46:49.008879389 +0200 CEST
-/intel/storage/ceph/mon/a/cluster/osd_bytes_used                 40960                   2016-05-25 12:46:49.008879389 +0200 CEST
-/intel/storage/ceph/osd/0/osd/op                                 8                       2016-05-25 12:46:49.148291065 +0200 CEST
-/intel/storage/ceph/osd/0/osd/op_cache_hit                       0                       2016-05-25 12:46:49.148291065 +0200 CEST
-/intel/storage/ceph/osd/0/osd/op_in_bytes                        1032                    2016-05-25 12:46:49.148291065 +0200 CEST
-/intel/storage/ceph/osd/0/osd/op_latency/avgcount                8                       2016-05-25 12:46:49.148291065 +0200 CEST
-/intel/storage/ceph/osd/0/osd/op_latency/sum                     0.082809936             2016-05-25 12:46:49.148291065 +0200 CEST
-/intel/storage/ceph/osd/0/osd/op_out_bytes                       0                       2016-05-25 12:46:49.148291065 +0200 CEST
-/intel/storage/ceph/osd/0/osd/op_process_latency/avgcount        8                       2016-05-25 12:46:49.148291065 +0200 CEST
-/intel/storage/ceph/osd/0/osd/op_process_latency/sum             0.036669336             2016-05-25 12:46:49.148291065 +0200 CEST
-/intel/storage/ceph/osd/0/osd/op_r                               0                       2016-05-25 12:46:49.148291065 +0200 CEST
-/intel/storage/ceph/osd/0/osd/op_r_latency/avgcount              0                       2016-05-25 12:46:49.148291065 +0200 CEST
-/intel/storage/ceph/osd/0/osd/op_r_latency/sum                   0                       2016-05-25 12:46:49.148291065 +0200 CEST
-/intel/storage/ceph/osd/0/osd/op_r_out_bytes                     0                       2016-05-25 12:46:49.148291065 +0200 CEST
-/intel/storage/ceph/osd/0/osd/op_r_process_latency/avgcount      0                       2016-05-25 12:46:49.148291065 +0200 CEST
-/intel/storage/ceph/osd/0/osd/op_r_process_latency/sum           0                       2016-05-25 12:46:49.148291065 +0200 CEST
-/intel/storage/ceph/osd/0/osd/op_rw                              4                       2016-05-25 12:46:49.148291065 +0200 CEST
-/intel/storage/ceph/osd/0/osd/op_rw_in_bytes                     1032                    2016-05-25 12:46:49.148291065 +0200 CEST
-/intel/storage/ceph/osd/0/osd/op_rw_latency/avgcount             4                       2016-05-25 12:46:49.148291065 +0200 CEST
-/intel/storage/ceph/osd/0/osd/op_rw_latency/sum                  0.03521104              2016-05-25 12:46:49.148291065 +0200 CEST
-/intel/storage/ceph/osd/0/osd/op_rw_out_bytes                    0                       2016-05-25 12:46:49.148291065 +0200 CEST
-/intel/storage/ceph/osd/0/osd/op_rw_process_latency/avgcount     4                       2016-05-25 12:46:49.148291065 +0200 CEST
-/intel/storage/ceph/osd/0/osd/op_rw_process_latency/sum          0.023461402             2016-05-25 12:46:49.148291065 +0200 CEST
-/intel/storage/ceph/osd/0/osd/op_rw_rlat/avgcount                4                       2016-05-25 12:46:49.148291065 +0200 CEST
-/intel/storage/ceph/osd/0/osd/op_rw_rlat/sum                     0.034607209             2016-05-25 12:46:49.148291065 +0200 CEST
-/intel/storage/ceph/osd/1/osd/op                                 22                      2016-05-25 12:46:49.283742514 +0200 CEST
-/intel/storage/ceph/osd/1/osd/op_cache_hit                       0                       2016-05-25 12:46:49.283742514 +0200 CEST
-/intel/storage/ceph/osd/1/osd/op_in_bytes                        8680                    2016-05-25 12:46:49.283742514 +0200 CEST
-/intel/storage/ceph/osd/1/osd/op_latency/avgcount                22                      2016-05-25 12:46:49.283742514 +0200 CEST
-/intel/storage/ceph/osd/1/osd/op_latency/sum                     0.197345214             2016-05-25 12:46:49.283742514 +0200 CEST
-/intel/storage/ceph/osd/1/osd/op_out_bytes                       0                       2016-05-25 12:46:49.283742514 +0200 CEST
-/intel/storage/ceph/osd/1/osd/op_process_latency/avgcount        22                      2016-05-25 12:46:49.283742514 +0200 CEST
-/intel/storage/ceph/osd/1/osd/op_process_latency/sum             0.139076264             2016-05-25 12:46:49.283742514 +0200 CEST
-/intel/storage/ceph/osd/1/osd/op_r                               0                       2016-05-25 12:46:49.283742514 +0200 CEST
+NAMESPACE                                                DATA                       TIMESTAMP
+/intel/storage/ceph/mon/a/cluster/num_mon                2                          2017-02-09 17:13:39.474247945 +0100 CET
+/intel/storage/ceph/mon/a/cluster/num_object             20                         2017-02-09 17:13:39.474247945 +0100 CET
+/intel/storage/ceph/mon/a/cluster/num_osd                2                          2017-02-09 17:13:39.474247945 +0100 CET
+/intel/storage/ceph/mon/a/cluster/num_pg                 24                         2017-02-09 17:13:39.474247945 +0100 CET
+/intel/storage/ceph/mon/a/cluster/osd_bytes              9.01767725056e+11          2017-02-09 17:13:39.474247945 +0100 CET
+/intel/storage/ceph/mon/a/cluster/osd_bytes_used         1.8365669376e+11           2017-02-09 17:13:39.474247945 +0100 CET
+/intel/storage/ceph/mon/b/cluster/num_mon                2                          2017-02-09 17:13:39.549567355 +0100 CET
+/intel/storage/ceph/mon/b/cluster/num_object             20                         2017-02-09 17:13:39.549567355 +0100 CET
+/intel/storage/ceph/mon/b/cluster/num_osd                2                          2017-02-09 17:13:39.549567355 +0100 CET
+/intel/storage/ceph/mon/b/cluster/num_pg                 24                         2017-02-09 17:13:39.549567355 +0100 CET
+/intel/storage/ceph/mon/b/cluster/osd_bytes              9.01767725056e+11          2017-02-09 17:13:39.549567355 +0100 CET
+/intel/storage/ceph/mon/b/cluster/osd_bytes_used         1.8365669376e+11           2017-02-09 17:13:39.549567355 +0100 CET
+/intel/storage/ceph/osd/0/osd/op                         8                          2017-02-09 17:13:39.608994105 +0100 CET
+/intel/storage/ceph/osd/0/osd/op_cache_hit               0                          2017-02-09 17:13:39.608994105 +0100 CET
+/intel/storage/ceph/osd/0/osd/op_in_bytes                0                          2017-02-09 17:13:39.608994105 +0100 CET
+/intel/storage/ceph/osd/0/osd/op_latency                 0.043267072875             2017-02-09 17:13:39.608994105 +0100 CET
+/intel/storage/ceph/osd/0/osd/op_out_bytes               0                          2017-02-09 17:13:39.608994105 +0100 CET
+/intel/storage/ceph/osd/0/osd/op_process_latency         0.0179476545               2017-02-09 17:13:39.608994105 +0100 CET
+/intel/storage/ceph/osd/0/osd/op_r                       0                          2017-02-09 17:13:39.608994105 +0100 CET
+/intel/storage/ceph/osd/0/osd/op_r_latency               0                          2017-02-09 17:13:39.608994105 +0100 CET
+/intel/storage/ceph/osd/0/osd/op_r_out_bytes             0                          2017-02-09 17:13:39.608994105 +0100 CET
+/intel/storage/ceph/osd/0/osd/op_r_process_latency       0                          2017-02-09 17:13:39.608994105 +0100 CET
+/intel/storage/ceph/osd/0/osd/op_rw                      0                          2017-02-09 17:13:39.608994105 +0100 CET
+/intel/storage/ceph/osd/0/osd/op_rw_in_bytes             0                          2017-02-09 17:13:39.608994105 +0100 CET
+/intel/storage/ceph/osd/0/osd/op_rw_latency              0                          2017-02-09 17:13:39.608994105 +0100 CET
+/intel/storage/ceph/osd/0/osd/op_rw_out_bytes            0                          2017-02-09 17:13:39.608994105 +0100 CET
+/intel/storage/ceph/osd/0/osd/op_rw_process_latency      0                          2017-02-09 17:13:39.608994105 +0100 CET
+/intel/storage/ceph/osd/0/osd/op_rw_rlat                 0                          2017-02-09 17:13:39.608994105 +0100 CET
+/intel/storage/ceph/osd/1/osd/op                         22                         2017-02-09 17:13:39.715109149 +0100 CET
+/intel/storage/ceph/osd/1/osd/op_cache_hit               0                          2017-02-09 17:13:39.715109149 +0100 CET
+/intel/storage/ceph/osd/1/osd/op_in_bytes                2148                       2017-02-09 17:13:39.715109149 +0100 CET
+/intel/storage/ceph/osd/1/osd/op_latency                 0.03500758777272727        2017-02-09 17:13:39.715109149 +0100 CET
+/intel/storage/ceph/osd/1/osd/op_out_bytes               0                          2017-02-09 17:13:39.715109149 +0100 CET
+/intel/storage/ceph/osd/1/osd/op_process_latency         0.03330366313636363        2017-02-09 17:13:39.715109149 +0100 CET
+/intel/storage/ceph/osd/1/osd/op_r                       0                          2017-02-09 17:13:39.715109149 +0100 CET
+/intel/storage/ceph/osd/1/osd/op_r_latency               0                          2017-02-09 17:13:39.715109149 +0100 CET
+/intel/storage/ceph/osd/1/osd/op_r_out_bytes             0                          2017-02-09 17:13:39.715109149 +0100 CET
+/intel/storage/ceph/osd/1/osd/op_r_process_latency       0                          2017-02-09 17:13:39.715109149 +0100 CET
+/intel/storage/ceph/osd/1/osd/op_rw                      0                          2017-02-09 17:13:39.715109149 +0100 CET
+/intel/storage/ceph/osd/1/osd/op_rw_in_bytes             0                          2017-02-09 17:13:39.715109149 +0100 CET
+/intel/storage/ceph/osd/1/osd/op_rw_latency              0                          2017-02-09 17:13:39.715109149 +0100 CET
+/intel/storage/ceph/osd/1/osd/op_rw_out_bytes            0                          2017-02-09 17:13:39.715109149 +0100 CET
+/intel/storage/ceph/osd/1/osd/op_rw_process_latency      0                          2017-02-09 17:13:39.715109149 +0100 CET
+/intel/storage/ceph/osd/1/osd/op_rw_rlat                 0                          2017-02-09 17:13:39.715109149 +0100 CET
 ```
 (Keys `ctrl+c` terminate task watcher)
 
@@ -355,7 +266,7 @@ Task stopped:
 ID: 029cc837-ccd7-41b0-8103-949c0ba0070f
 ```
 
-**Notice:**																																			**Using the Snap tribe is recommended.** Administrators can control all Snap nodes in a tribe agreement by messaging just one of them what makes cluster configuration management simple. Read more about the Snap tribe at https://github.com/intelsdi-x/snap.
+**Notice:**                                                                                                                                                                                                                                                                                        **Using the Snap tribe is recommended.** Administrators can control all Snap nodes in a tribe agreement by messaging just one of them what makes cluster configuration management simple. Read more about the Snap tribe at https://github.com/intelsdi-x/snap.
 
 ### Roadmap
 This plugin is in active development. As we launch this plugin, we have a few items in mind for the next release:

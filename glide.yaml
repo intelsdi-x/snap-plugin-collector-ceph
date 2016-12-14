@@ -1,11 +1,8 @@
 package: github.com/intelsdi-x/snap-plugin-collector-ceph
 import:
-- package: github.com/intelsdi-x/snap
+- package: github.com/intelsdi-x/snap-plugin-lib-go
   subpackages:
-  - control/plugin
-  - control/plugin/cpolicy
-  - core
-  - core/ctypes
+  - v1
 testImport:
 - package: github.com/smartystreets/goconvey
   subpackages:
