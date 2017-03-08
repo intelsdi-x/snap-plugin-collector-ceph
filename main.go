@@ -20,10 +20,9 @@ limitations under the License.
 package main
 
 import (
-	"os"
 
 	// Import the snap plugin library
-	"github.com/intelsdi-x/snap/control/plugin"
+	"github.com/intelsdi-x/snap-plugin-lib-go/v1/plugin"
 
 	// Import our collector plugin implementation
 	"github.com/intelsdi-x/snap-plugin-collector-ceph/ceph"
@@ -31,16 +30,11 @@ import (
 
 // meta data about plugin
 const (
-	name       = "ceph"
-	version    = 5
-	pluginType = plugin.CollectorPluginType
+	name    = "ceph"
+	version = 6
 )
 
 // plugin bootstrap
 func main() {
-	plugin.Start(
-		plugin.NewPluginMeta(name, version, pluginType, []string{}, []string{plugin.SnapGOBContentType}, plugin.ConcurrencyCount(1)),
-		ceph.New(),
-		os.Args[1],
-	)
+	plugin.StartCollector(ceph.New(), name, version, plugin.ConcurrencyCount(1))
 }

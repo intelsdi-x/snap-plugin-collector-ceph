@@ -1,50 +1,13 @@
 {
     "control": {
-        "cache_ttl": "5s"
-    },
-    "scheduler": {
-        "default_deadline": "5s",
-        "worker_pool_size": 5
-    },
-    "plugins": {
-        "all": {
-            "password": "p@ssw0rd"
-        },
-        "collector": {
-            "all": {
-                "user": "jane"
-            },
-            "ceph": {
-                "all": {
-                    "path": "/usr/bin/ceph",
-                    "socket_path": "/var/run/ceph",
-                    "socket_prefix": "ceph-",
-                    "socket_ext": "asok"
-                },
-                "versions": {
-                    "1": {
-                        "path": "/usr/bin/ceph"
-                    }
-                }
-            }
-        },
-        "publisher": {
-            "influxdb": {
-                "all": {
-                    "server": "xyz.local",
-                    "password": "$password"
-                }
-            }
-        },
-        "processor": {
-            "movingaverage": {
-                "all": {
-                    "user": "jane"
-                },
-                "versions": {
-                    "1": {
-                        "user": "tiffany",
-                        "password": "new password"
+        "plugins": {
+            "collector": {
+                "ceph": {
+                    "all": {
+                        "path": "/home/username/ceph/build/bin",
+                        "socket_path": "/home/username/ceph/src/out",
+                        "socket_prefix": "",
+                        "socket_ext": "asok"
                     }
                 }
             }
