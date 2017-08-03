@@ -266,6 +266,12 @@ Task stopped:
 ID: 029cc837-ccd7-41b0-8103-949c0ba0070f
 ```
 
+Run plugin in diagnostic mode:
+```
+$ snap-plugin-collector-ceph --config '{"path": "/somepath/ceph/build/bin", "socket_path": "/somepath/ceph/src/out", "socket_ext": "asok", "socket_prefix": ""}'
+```
+*Note: Passing configuration is important, because this plugin builds metric catalog dynamically based on ceph perf schema output for all daemons.*
+
 **Notice:**                                                                                                                                                                                                                                                                                        **Using the Snap tribe is recommended.** Administrators can control all Snap nodes in a tribe agreement by messaging just one of them what makes cluster configuration management simple. Read more about the Snap tribe at https://github.com/intelsdi-x/snap.
 
 ### Roadmap

@@ -1,0 +1,35 @@
+{
+  "version": 1,
+  "schedule": {
+      "type": "simple",
+      "interval": "3s"
+  },
+  "workflow": {
+    "collect": {
+      "metrics": {
+        "/intel/storage/ceph/osd/*": {}
+      },
+      "config": {
+          "/intel/storage/ceph": {
+              "path": "/home/mkleina/ceph/build/bin",
+              "socket_path": "/home/mkleina/ceph/src/out",
+              "socket_prefix": "",
+              "socket_ext": "asok"
+          }
+      },
+      "publish": [
+        {
+          "plugin_name": "influxdb",
+          "config": {
+            "database": "test",
+            "host": "localhost",
+            "port": 8086,
+            "retention": "default",
+            "user": "root",
+            "password": "root"
+          }
+        }
+      ]
+    }
+  }
+}

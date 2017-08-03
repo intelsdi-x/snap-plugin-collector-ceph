@@ -31,7 +31,7 @@ import (
 // meta data about plugin
 const (
 	name    = "ceph"
-	version = 6
+	version = 7
 )
 
 // plugin bootstrap
