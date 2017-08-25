@@ -1,0 +1,20 @@
+func (ceph *Ceph) getJSONDataByNamespace(data map[string]interface{}, namespace []string, resultNamespace []string, results map[string]interface{}) {
+	// Go through all JSON data keys
+	for key, _ := range data {
+		// Convert ceph key to namespace slice for comparsion, for ex. osd/1/metric.0/wait will be split into osd/1/metric/0/wait
+		keyNs := strings.Split(key, ".")
+		// Check if splitted JSON key matches provided namespace ("metric.0" will match both "metric/0" or "metric/*")
+		// Skip match if no namespace provided - in this case match all JSON keys (used to gather all JSON metric paths)
+		if len(namespace) == 0 || (len(namespace) >= len(keyNs) && matchSlice(namespace[:len(keyNs)], keyNs)) {
+			// If key contain other keys, go deeper into JSON structure
+			if reflect.ValueOf(data[key]).Kind() == reflect.Map {
+				if len(namespace) != 0 {
+					namespace = namespace[len(keyNs):]
+				}
+				ceph.getJSONDataByNamespace(data[key].(map[string]interface{}), namespace, append(resultNamespace, keyNs...), results)
+			} else { // Dead end of JSON tree - add path to result map
+				results[strings.Join(resultNamespace, "/")+"/"+key] = data[key]
+			}
+		}
+	}
+}

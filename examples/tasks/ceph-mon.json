@@ -1,0 +1,22 @@
+{
+  "version": 1,
+  "schedule": {
+      "type": "simple",
+      "interval": "1s"
+  },
+  "workflow": {
+    "collect": {
+      "metrics": {
+              "/intel/storage/ceph/mon/*/*": {}
+      },
+      "config": {
+          "/intel/storage/ceph": {
+              "path": "/home/mkleina/ceph/build/bin",
+              "socket_path": "/home/mkleina/ceph/src/out",
+              "socket_prefix": "",
+              "socket_ext": "asok"
+          }
+      }
+    }
+  }
+}
